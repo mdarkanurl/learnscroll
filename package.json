@@ -1,9 +1,6 @@
 {
   "name": "learnscroll",
   "module": "index.ts",
-  "imports": {
-    "#auth": "src/modules/auth/index.ts"
-  },
   "scripts": {
     "start": "bun src/bootstrap/server.ts",
     "dev": "bun --watch src/bootstrap/server.ts"
@@ -16,5 +13,9 @@
     "typescript": "^5"
   },
   "private": true,
-  "type": "module"
+  "type": "module",
+  "imports": {
+    "#auth": "src/modules/auth/index.ts",
+    "#error": "./src/modules/shared/errors/index.ts"
+  }
 }

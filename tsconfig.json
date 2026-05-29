@@ -28,7 +28,8 @@
     "noPropertyAccessFromIndexSignature": false,
 
     "paths": {
-      "#auth": ["./src/modules/auth/index.ts"]
+      "#auth": ["./src/modules/auth/index.ts"],
+      "#error": ["./src/modules/shared/errors/index.ts"]
     }
   }
 }
