@@ -29,10 +29,11 @@
 
     "paths": {
       "#auth": ["./src/modules/auth/index.ts"],
-      "#error": ["./src/modules/shared/errors/index.ts"],
+      "#error": ["./src/shared/errors/index.ts"],
       "#configs": ["./src/shared/configs/index.ts"],
       "#db": ["./src/shared/database/index.ts"],
-      "#redis": ["./src/shared/redis/index.ts"]
+      "#redis": ["./src/shared/redis/index.ts"],
+      "#validation": ["./src/shared/validation/index.ts"]
     }
   }
 }
