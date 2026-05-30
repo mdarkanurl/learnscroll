@@ -29,7 +29,9 @@
 
     "paths": {
       "#auth": ["./src/modules/auth/index.ts"],
-      "#error": ["./src/modules/shared/errors/index.ts"]
+      "#error": ["./src/modules/shared/errors/index.ts"],
+      "#configs": ["./src/shared/configs/index.ts"],
+      "#db": ["./src/shared/database/index.ts"]
     }
   }
 }

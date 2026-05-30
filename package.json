@@ -3,11 +3,18 @@
   "module": "index.ts",
   "scripts": {
     "start": "bun src/bootstrap/server.ts",
-    "dev": "bun --watch src/bootstrap/server.ts"
+    "dev": "bun --watch src/bootstrap/server.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:drop": "drizzle-kit drop"
   },
   "dependencies": {
     "@types/bun": "^1.3.14",
-    "hono": "^4.12.23"
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.23",
+    "pg": "^8.21.0"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -16,6 +23,13 @@
   "type": "module",
   "imports": {
     "#auth": "src/modules/auth/index.ts",
-    "#error": "./src/modules/shared/errors/index.ts"
+    "#error": "./src/modules/shared/errors/index.ts",
+    "#configs": "./srcles/shared/configs/index.ts",
+    "#db": "./srcles/shared/database/index.ts"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.22.3"
   }
 }
