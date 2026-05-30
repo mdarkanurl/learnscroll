@@ -1,2 +1,6 @@
 import { db } from "./db";
-export default db;
+import { users } from "./schema";
+export {
+    db,
+    users
+};
