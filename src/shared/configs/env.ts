@@ -15,4 +15,5 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
 
   databaseUrl: getEnv("DATABASE_URL"),
+  redisUrl: getEnv("REDIS_URL"),
 };

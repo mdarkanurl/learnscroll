@@ -24,8 +24,9 @@
   "imports": {
     "#auth": "src/modules/auth/index.ts",
     "#error": "./src/modules/shared/errors/index.ts",
-    "#configs": "./srcles/shared/configs/index.ts",
-    "#db": "./srcles/shared/database/index.ts"
+    "#configs": "./src/shared/configs/index.ts",
+    "#db": "./src/shared/database/index.ts",
+    "#redis": "./src/shared/redis/index.ts"
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
