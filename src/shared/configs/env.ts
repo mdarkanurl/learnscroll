@@ -18,4 +18,5 @@ export const env = {
   redisUrl: getEnv("REDIS_URL"),
   rabbitmqUrl: getEnv("RABBITMQ_URL"),
   resendApiKey: getEnv("RESEND_API_KEY"),
+  jwtSecret: getEnv("JWT_SECRET"),
 };
