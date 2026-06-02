@@ -15,6 +15,13 @@
       "when": 1780117880947,
       "tag": "0001_bright_puck",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780419633796,
+      "tag": "0002_hesitant_preak",
+      "breakpoints": true
     }
   ]
 }

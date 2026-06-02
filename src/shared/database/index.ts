@@ -1,6 +1,5 @@
-import { db } from "./db";
-import { users } from "./schema";
+export { db } from "./db";
 export {
-    db,
-    users
-};
+    users,
+    refresh_tokens
+} from "./schema";

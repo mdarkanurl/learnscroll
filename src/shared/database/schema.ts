@@ -1,5 +1,4 @@
-import { users } from "./auth.schema";
-
 export {
-    users
-}
+    users,
+    refresh_tokens
+} from "./auth.schema";
