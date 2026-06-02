@@ -2,8 +2,7 @@ import { db, users } from "#db";
 import redis from "#redis";
 import bcrypt from "bcryptjs";
 import { sql } from "drizzle-orm";
-import CustomError from "#error";
-import { publishToQueue } from "../../../shared/rabbitmq/rabbitmq";
+import { sendEmail } from "#queue";
 import type { SignupSchemaDto } from "../dto/signup.dto";
 
 export class AuthServices {
@@ -41,15 +40,15 @@ export class AuthServices {
 
             await this.redis.set(pendingKey, userData, "EX", 900);
 
-            await publishToQueue("verification_email", {
+            await sendEmail({
                 email: email,
-                firstname,
-                verificationCode
+                subject: "Verify your email",
+                body: `Your verification code is: ${verificationCode}`
             });
 
             return "If email valid, you will receive a verification email shortly.";
         } catch (error) {
-            throw new CustomError( "Signup failed", 500);
+            throw error;
         }
     }
 }
