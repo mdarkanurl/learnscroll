@@ -16,4 +16,6 @@ export const env = {
 
   databaseUrl: getEnv("DATABASE_URL"),
   redisUrl: getEnv("REDIS_URL"),
+  rabbitmqUrl: getEnv("RABBITMQ_URL"),
+  resendApiKey: getEnv("RESEND_API_KEY"),
 };
