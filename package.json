@@ -18,6 +18,7 @@
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.23",
     "pg": "^8.21.0",
+    "resend": "^6.12.4",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
@@ -31,7 +32,9 @@
     "#configs": "./src/shared/configs/index.ts",
     "#db": "./src/shared/database/index.ts",
     "#redis": "./src/shared/redis/index.ts",
-    "#validation": "./src/shared/validation/index.ts"
+    "#validation": "./src/shared/validation/index.ts",
+    "#rabbitmq": "./src/shared/rabbitmq/index.ts",
+    "#queue": "./src/shared/queue/index.ts"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.8",

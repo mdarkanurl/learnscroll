@@ -33,7 +33,9 @@
       "#configs": ["./src/shared/configs/index.ts"],
       "#db": ["./src/shared/database/index.ts"],
       "#redis": ["./src/shared/redis/index.ts"],
-      "#validation": ["./src/shared/validation/index.ts"]
+      "#validation": ["./src/shared/validation/index.ts"],
+      "#rabbitmq": ["./src/shared/rabbitmq/index.ts"],
+      "#queue": ["./src/shared/queue/index.ts"]
     }
   }
 }
