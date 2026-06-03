@@ -5,6 +5,7 @@ import type { LoginSchemaDto } from "../dto/login.dto";
 import type { SignupSchemaDto } from "../dto/signup.dto";
 import type { VerifyEmailSchemaDto } from "../dto/verify-email.dto";
 import type { ChangePasswordSchemaDto } from "../dto/change-password.dto";
+import type { ForgotPasswordSchemaDto } from "../dto/forgot-password.dto";
 import CustomError from "#error";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 
@@ -101,6 +102,39 @@ export class AuthControllers {
 
         } catch (error) {
             console.error("Error in verifyEmail controller:", error);
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async forgotPassword(c: Context<any, any, { out: { json: ForgotPasswordSchemaDto } }>) {
+        try {
+            const { email } = c.req.valid("json");
+
+            const response = await this.authServices.forgotPassword(email);
+
+            setCookie(c, 'forgot_password_token', response.token, {
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                httpOnly: true,
+                maxAge: 15 * 60,
+                expires: new Date(Date.now() + 15 * 60 * 1000),
+                sameSite: 'Lax',
+            });
+
+            return c.json({
+                success: true,
+                message: response.message
+            });
+        } catch (error) {
             if (error instanceof CustomError) {
                 return c.json({
                     success: false,

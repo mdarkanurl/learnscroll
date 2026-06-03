@@ -157,6 +157,43 @@ export class AuthServices {
         }
     }
 
+    async forgotPassword(email: string): Promise<{ token: string; message: string }> {
+        const [user] = await this.db
+            .select({ id: users.id })
+            .from(users)
+            .where(sql`lower(${users.email}) = lower(${email})`)
+            .limit(1);
+
+        const token = this.jwtUtils.generateJwtToken({ email }, 60 * 15);
+
+        if (!user) return {
+            token,
+            message: "If account exists, you will receive a password reset email shortly."
+        };
+
+        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const resetKey = `reset:${email}`;
+
+        const resetData = JSON.stringify({
+            email,
+            resetCode,
+            token
+        });
+
+        await this.redis.set(resetKey, resetData, "EX", 900);
+
+        await sendEmail({
+            email,
+            subject: "Reset your password",
+            body: `Your password reset code is: ${resetCode}`
+        });
+
+        return {
+            token,
+            message: "If account exists, you will receive a password reset email shortly."
+        };
+    }
+
     async changePassword(email: string, currentPassword: string, newPassword: string): Promise<string> {
         const [user] = await this.db
             .select()
