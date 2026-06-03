@@ -65,7 +65,7 @@ export class AuthServices {
         }
     }
 
-    async verifyEmail(token: string, code: number): Promise<string | { message: string, accessToken: string, refreshToken: string }> {
+    async verifyEmail(token: string, code: number): Promise<{ message: string, accessToken: string, refreshToken: string }> {
         try {
             const payload = this.verifyJwtToken(token) as { email: string };
             const { email } = payload;
@@ -107,6 +107,44 @@ export class AuthServices {
             
             return {
                 message: "Email verified successfully",
+                accessToken,
+                refreshToken
+            };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            if(error instanceof jwt.JsonWebTokenError) throw new CustomError("Invalid token", 400);
+            if(error instanceof jwt.TokenExpiredError) throw new CustomError("Expired token", 400);
+            throw new CustomError("An unexpected error occurred", 500);
+        }
+    }
+
+    async login(email: string, password: string): Promise<{ message: string, accessToken: string, refreshToken: string }> {
+        try {
+            const [user] = await this.db
+                .select()
+                .from(users)
+                .where(sql`lower(${users.email}) = lower(${email})`)
+                .limit(1);
+
+            if (!user) throw new CustomError("Invalid email or password", 401);
+
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+
+            if (!isPasswordValid) throw new CustomError("Invalid email or password", 401);
+
+            const accessToken = this.generateJwtToken({ userId: user.id }, 60 * 30);
+            const refreshToken = this.generateJwtToken({ userId: user.id }, 60 * 60 * 24 * 30);
+
+            const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+            await this.db.insert(refresh_tokens).values({
+                userId: user.id,
+                tokenHash: hashedRefreshToken,
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            });
+
+            return {
+                message: "Login successful",
                 accessToken,
                 refreshToken
             };
