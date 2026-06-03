@@ -3,7 +3,9 @@ import { Hono } from 'hono';
 import { LoginSchema } from '../dto/login.dto';
 import { SignupSchema } from '../dto/signup.dto';
 import { VerifyEmailSchema } from '../dto/verify-email.dto';
+import { ChangePasswordSchema } from '../dto/change-password.dto';
 import zodVaildation from '#validation';
+import { isAuthenticated } from "#middlewares";
 
 const authRouters = new Hono();
 const authControllers = new AuthControllers();
@@ -24,6 +26,13 @@ authRouters.post(
     '/login',
     zodVaildation(LoginSchema),
     (c) => authControllers.login(c)
+)
+
+authRouters.post(
+    '/change-password',
+    isAuthenticated(),
+    zodVaildation(ChangePasswordSchema),
+    (c) => authControllers.changePassword(c)
 )
 
 

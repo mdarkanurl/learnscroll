@@ -5,13 +5,14 @@ import { sql } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "#queue";
 import type { SignupSchemaDto } from "../dto/signup.dto";
-import { env } from "#configs";
+import { JwtUtils } from "#utils";
 import CustomError from "#error";
 
 export class AuthServices {
 
     private readonly db = db;
     private readonly redis = redis;
+    private readonly jwtUtils = new JwtUtils();
 
     async signup(input: SignupSchemaDto): Promise<string | { token: string; message: string }> {
         try {
@@ -34,7 +35,7 @@ export class AuthServices {
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
             // gnerate a token and store it to cookie so that verify email endpoint identifies the user and verify the code
-            const token =  this.generateJwtToken({ email }, 60 * 15); // token valid for 15 minutes
+            const token =  this.jwtUtils.generateJwtToken({ email }, 60 * 15); // token valid for 15 minutes
 
             const userData = JSON.stringify({
                 firstname,
@@ -67,7 +68,7 @@ export class AuthServices {
 
     async verifyEmail(token: string, code: number): Promise<{ message: string, accessToken: string, refreshToken: string }> {
         try {
-            const payload = this.verifyJwtToken(token) as { email: string };
+            const payload = this.jwtUtils.verifyJwtToken(token) as { email: string };
             const { email } = payload;
 
             const pendingKey = `signup:${email}`;
@@ -88,12 +89,12 @@ export class AuthServices {
                 lastname: userData.lastname,
                 email: userData.email,
                 password: userData.password,
-            }).returning({ id: users.id });
+            }).returning({ id: users.id, email: users.email });
 
             await this.redis.del(pendingKey);
 
-            const accessToken = this.generateJwtToken({ userId: user?.id }, 60 * 30);
-            const refreshToken = this.generateJwtToken({ userId: user?.id }, 60 * 60 * 24 * 30);
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: user?.id, email: user?.email }, 60 * 30);
+            const refreshToken = this.jwtUtils.generateJwtToken({ userId: user?.id }, 60 * 60 * 24 * 30);
 
             // hash the refreshtoken
             const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
@@ -132,8 +133,8 @@ export class AuthServices {
 
             if (!isPasswordValid) throw new CustomError("Invalid email or password", 401);
 
-            const accessToken = this.generateJwtToken({ userId: user.id }, 60 * 30);
-            const refreshToken = this.generateJwtToken({ userId: user.id }, 60 * 60 * 24 * 30);
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: user.id, email: user.email }, 60 * 30);
+            const refreshToken = this.jwtUtils.generateJwtToken({ userId: user.id }, 60 * 60 * 24 * 30);
 
             const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
@@ -156,11 +157,24 @@ export class AuthServices {
         }
     }
 
-    private generateJwtToken(payload: Object, expiresIn: number): string {
-        return jwt.sign(payload, env.jwtSecret, { expiresIn });
-    }
+    async changePassword(email: string, currentPassword: string, newPassword: string): Promise<string> {
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(sql`lower(${users.email}) = lower(${email})`)
+            .limit(1);
 
-    private verifyJwtToken(token: any) {
-        return jwt.verify(token, env.jwtSecret);
+        if (!user) throw new CustomError("User not found", 404);
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) throw new CustomError("Current password is incorrect", 401);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await this.db.update(users)
+            .set({ password: hashedPassword })
+            .where(sql`lower(${users.email}) = lower(${email})`);
+
+        return "Password changed successfully";
     }
 }

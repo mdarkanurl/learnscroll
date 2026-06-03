@@ -4,6 +4,7 @@ import { AuthServices } from "../services/auth.services";
 import type { LoginSchemaDto } from "../dto/login.dto";
 import type { SignupSchemaDto } from "../dto/signup.dto";
 import type { VerifyEmailSchemaDto } from "../dto/verify-email.dto";
+import type { ChangePasswordSchemaDto } from "../dto/change-password.dto";
 import CustomError from "#error";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 
@@ -100,6 +101,31 @@ export class AuthControllers {
 
         } catch (error) {
             console.error("Error in verifyEmail controller:", error);
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async changePassword(c: Context<any, any, { out: { json: ChangePasswordSchemaDto } }>) {
+        try {
+            const { currentPassword, newPassword } = c.req.valid("json");
+            const userEmail = c.get("jwtPayload")?.email;
+
+            const response = await this.authServices.changePassword(userEmail, currentPassword, newPassword);
+
+            return c.json({
+                success: true,
+                message: response
+            });
+        } catch (error) {
             if (error instanceof CustomError) {
                 return c.json({
                     success: false,
