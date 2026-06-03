@@ -6,6 +6,7 @@ import type { SignupSchemaDto } from "../dto/signup.dto";
 import type { VerifyEmailSchemaDto } from "../dto/verify-email.dto";
 import type { ChangePasswordSchemaDto } from "../dto/change-password.dto";
 import type { ForgotPasswordSchemaDto } from "../dto/forgot-password.dto";
+import type { ResetPasswordSchemaDto } from "../dto/reset-password.dto";
 import CustomError from "#error";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 
@@ -133,6 +134,40 @@ export class AuthControllers {
             return c.json({
                 success: true,
                 message: response.message
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async resetPassword(c: Context<any, any, { out: { json: ResetPasswordSchemaDto } }>) {
+        try {
+            const { code, newPassword } = c.req.valid("json");
+            const token = getCookie(c, "forgot_password_token");
+
+            if (!token) {
+                return c.json({
+                    success: false,
+                    message: "Reset token not found"
+                }, 400);
+            }
+
+            const response = await this.authServices.resetPassword(token, code, newPassword);
+
+            deleteCookie(c, 'forgot_password_token');
+
+            return c.json({
+                success: true,
+                message: response
             });
         } catch (error) {
             if (error instanceof CustomError) {

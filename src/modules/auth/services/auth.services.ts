@@ -180,6 +180,8 @@ export class AuthServices {
             token
         });
 
+        // delete already requested for password reset
+        await this.redis.del(resetKey);
         await this.redis.set(resetKey, resetData, "EX", 900);
 
         await sendEmail({
@@ -192,6 +194,39 @@ export class AuthServices {
             token,
             message: "If account exists, you will receive a password reset email shortly."
         };
+    }
+
+    async resetPassword(token: string, code: number, newPassword: string): Promise<string> {
+        try {
+            const payload = this.jwtUtils.verifyJwtToken(token) as { email: string };
+            const { email } = payload;
+
+            const resetKey = `reset:${email}`;
+            const reset = await this.redis.get(resetKey);
+
+            if (!reset) throw new CustomError("Invalid or expired reset code", 400);
+
+            const resetData = JSON.parse(reset);
+
+            if (resetData.resetCode !== code.toString()) {
+                throw new CustomError("Invalid or expired reset code", 400);
+            }
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            await this.db.update(users)
+                .set({ password: hashedPassword })
+                .where(sql`lower(${users.email}) = lower(${email})`);
+
+            await this.redis.del(resetKey);
+
+            return "Password reset successfully";
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            if (error instanceof jwt.JsonWebTokenError) throw new CustomError("Invalid token", 400);
+            if (error instanceof jwt.TokenExpiredError) throw new CustomError("Expired token", 400);
+            throw error;
+        }
     }
 
     async changePassword(email: string, currentPassword: string, newPassword: string): Promise<string> {

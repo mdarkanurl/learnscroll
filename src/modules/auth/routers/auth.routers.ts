@@ -5,6 +5,7 @@ import { SignupSchema } from '../dto/signup.dto';
 import { VerifyEmailSchema } from '../dto/verify-email.dto';
 import { ChangePasswordSchema } from '../dto/change-password.dto';
 import { ForgotPasswordSchema } from '../dto/forgot-password.dto';
+import { ResetPasswordSchema } from '../dto/reset-password.dto';
 import zodVaildation from '#validation';
 import { isAuthenticated } from "#middlewares";
 
@@ -33,6 +34,12 @@ authRouters.post(
     '/forgot-password',
     zodVaildation(ForgotPasswordSchema),
     (c) => authControllers.forgotPassword(c)
+)
+
+authRouters.put(
+    '/reset-password',
+    zodVaildation(ResetPasswordSchema),
+    (c) => authControllers.resetPassword(c)
 )
 
 authRouters.put(
