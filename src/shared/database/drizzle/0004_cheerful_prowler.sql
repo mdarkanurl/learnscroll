@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "userIdUniqueIndex" ON "refresh_tokens" USING btree ("userId");

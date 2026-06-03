@@ -29,6 +29,20 @@
       "when": 1780421031932,
       "tag": "0003_past_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1780476561899,
+      "tag": "0004_cheerful_prowler",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1780476604463,
+      "tag": "0005_living_genesis",
+      "breakpoints": true
     }
   ]
 }

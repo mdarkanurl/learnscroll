@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uniqueIndex, uuid, varchar, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp, uniqueIndex, uuid, varchar, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { SQL, sql } from "drizzle-orm";
 
 
@@ -26,4 +26,6 @@ export const refresh_tokens = pgTable('refresh_tokens', {
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     lastUsedAt: timestamp("lastUsedAt"),
     revokedAt: timestamp("revokedAt")
-});
+}, (table) => [
+    index('userIdIndex').on(table.userId),
+]);
