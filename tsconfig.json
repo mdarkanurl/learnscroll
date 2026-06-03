@@ -35,7 +35,9 @@
       "#redis": ["./src/shared/redis/index.ts"],
       "#validation": ["./src/shared/validation/index.ts"],
       "#rabbitmq": ["./src/shared/rabbitmq/index.ts"],
-      "#queue": ["./src/shared/queue/index.ts"]
+      "#queue": ["./src/shared/queue/index.ts"],
+      "#utils": ["./src/shared/utils/index.ts"],
+      "#middlewares": ["./src/shared/middlewares/index.ts"]
     }
   }
 }
