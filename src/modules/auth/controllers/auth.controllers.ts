@@ -183,6 +183,33 @@ export class AuthControllers {
         }
     }
 
+    async logout(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+
+            const response = await this.authServices.logout(userId);
+
+            deleteCookie(c, 'access_token');
+            deleteCookie(c, 'refresh_token');
+
+            return c.json({
+                success: true,
+                message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
     async changePassword(c: Context<any, any, { out: { json: ChangePasswordSchemaDto } }>) {
         try {
             const { currentPassword, newPassword } = c.req.valid("json");

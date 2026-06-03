@@ -42,6 +42,12 @@ authRouters.put(
     (c) => authControllers.resetPassword(c)
 )
 
+authRouters.post(
+    '/logout',
+    isAuthenticated(),
+    (c) => authControllers.logout(c)
+)
+
 authRouters.put(
     '/change-password',
     isAuthenticated(),

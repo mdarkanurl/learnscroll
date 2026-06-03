@@ -229,6 +229,14 @@ export class AuthServices {
         }
     }
 
+    async logout(userId: string): Promise<string> {
+        await this.db.update(refresh_tokens)
+            .set({ revokedAt: new Date() })
+            .where(sql`${refresh_tokens.userId} = ${userId}`);
+
+        return "Logged out successfully";
+    }
+
     async changePassword(email: string, currentPassword: string, newPassword: string): Promise<string> {
         const [user] = await this.db
             .select()
