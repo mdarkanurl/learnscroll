@@ -183,6 +183,55 @@ export class AuthControllers {
         }
     }
 
+    async refreshToken(c: Context) {
+        try {
+            const token = getCookie(c, "refresh_token");
+
+            if (!token) {
+                return c.json({
+                    success: false,
+                    message: "Refresh token not found"
+                }, 400);
+            }
+
+            const response = await this.authServices.refreshToken(token);
+
+            setCookie(c, 'access_token', response.accessToken, {
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                httpOnly: true,
+                maxAge: 30 * 60,
+                expires: new Date(Date.now() + 30 * 60 * 1000),
+                sameSite: 'Lax',
+            });
+
+            setCookie(c, 'refresh_token', response.refreshToken, {
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                httpOnly: true,
+                maxAge: 30 * 24 * 60 * 60,
+                expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                sameSite: 'Lax',
+            });
+
+            return c.json({
+                success: true,
+                message: "Token refreshed successfully"
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
     async logout(c: Context) {
         try {
             const userId = c.get("jwtPayload")?.userId;

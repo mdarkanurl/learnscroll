@@ -229,6 +229,47 @@ export class AuthServices {
         }
     }
 
+    async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
+        try {
+            const payload = this.jwtUtils.verifyJwtToken(token) as { userId: string };
+
+            const [storedToken] = await this.db
+                .select()
+                .from(refresh_tokens)
+                .where(sql`${refresh_tokens.userId} = ${payload.userId} AND ${refresh_tokens.revokedAt} IS NULL AND ${refresh_tokens.expiresAt} > NOW()`)
+                .orderBy(sql`${refresh_tokens.createdAt} DESC`)
+                .limit(1);
+
+            if (!storedToken) throw new CustomError("Invalid or expired refresh token", 401);
+
+            const isTokenValid = await bcrypt.compare(token, storedToken.tokenHash);
+            if (!isTokenValid) throw new CustomError("Invalid refresh token", 401);
+
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 30);
+            const newRefreshToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 60 * 24 * 30);
+
+            const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
+
+            // TODO clearup old refresh tokens from db
+            await this.db.update(refresh_tokens)
+                .set({ revokedAt: new Date() })
+                .where(sql`${refresh_tokens.id} = ${storedToken.id}`);
+
+            await this.db.insert(refresh_tokens).values({
+                userId: payload.userId,
+                tokenHash: hashedRefreshToken,
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            });
+
+            return { accessToken, refreshToken: newRefreshToken };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            if(error instanceof jwt.JsonWebTokenError) throw new CustomError("Invalid token", 400);
+            if(error instanceof jwt.TokenExpiredError) throw new CustomError("Expired token", 400);
+            throw error;
+        }
+    }
+
     async logout(userId: string): Promise<string> {
         await this.db.update(refresh_tokens)
             .set({ revokedAt: new Date() })

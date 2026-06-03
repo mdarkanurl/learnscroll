@@ -43,6 +43,11 @@ authRouters.put(
 )
 
 authRouters.post(
+    '/refresh-token',
+    (c) => authControllers.refreshToken(c)
+)
+
+authRouters.post(
     '/logout',
     isAuthenticated(),
     (c) => authControllers.logout(c)
