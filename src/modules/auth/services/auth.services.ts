@@ -62,7 +62,7 @@ export class AuthServices {
             if (error instanceof CustomError) throw error;
             if(error instanceof jwt.JsonWebTokenError) throw new CustomError("Invalid token", 400);
             if(error instanceof jwt.TokenExpiredError) throw new CustomError("Expired token", 400);
-            throw new CustomError("An unexpected error occurred", 500);
+            throw error;
         }
     }
 
@@ -115,7 +115,7 @@ export class AuthServices {
             if (error instanceof CustomError) throw error;
             if(error instanceof jwt.JsonWebTokenError) throw new CustomError("Invalid token", 400);
             if(error instanceof jwt.TokenExpiredError) throw new CustomError("Expired token", 400);
-            throw new CustomError("An unexpected error occurred", 500);
+            throw error;
         }
     }
 
@@ -153,7 +153,7 @@ export class AuthServices {
             if (error instanceof CustomError) throw error;
             if(error instanceof jwt.JsonWebTokenError) throw new CustomError("Invalid token", 400);
             if(error instanceof jwt.TokenExpiredError) throw new CustomError("Expired token", 400);
-            throw new CustomError("An unexpected error occurred", 500);
+            throw error;
         }
     }
 
