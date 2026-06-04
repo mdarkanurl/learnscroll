@@ -32,6 +32,29 @@ export class UsersControllers {
         }
     }
 
+    async me(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+            const user = await this.userServices.me(userId);
+
+            return c.json({
+                success: true,
+                data: user
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
     async profiles(c: Context) {
         try {
             const userId = c.get("jwtPayload")?.userId;

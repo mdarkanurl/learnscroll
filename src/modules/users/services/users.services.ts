@@ -28,6 +28,22 @@ export class UserServices {
         return "Password changed successfully";
     }
 
+    async me(userId: string) {
+        const [user] = await this.db
+            .select({
+                email: users.email,
+                firstname: users.firstname,
+                lastname: users.lastname
+            })
+            .from(users)
+            .where(sql`${users.id} = ${userId}`)
+            .limit(1);
+
+        if (!user) throw new CustomError("User not found", 404);
+
+        return user;
+    }
+
     async profiles(userIdFromReq: string) {
         const { id, userId, ...rest } = getTableColumns(profiles);
 

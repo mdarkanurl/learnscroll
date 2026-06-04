@@ -15,6 +15,12 @@ usersRouters.post(
 );
 
 usersRouters.get(
+    "/me",
+    isAuthenticated(),
+    (c) => usersControllers.me(c)
+);
+
+usersRouters.get(
     "/profiles",
     isAuthenticated(),
     (c) => usersControllers.profiles(c)
