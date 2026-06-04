@@ -58,6 +58,18 @@ authRouters.post(
     (c) => authControllers.logoutAll(c)
 )
 
+authRouters.get(
+    '/sessions',
+    isAuthenticated(),
+    (c) => authControllers.sessions(c)
+)
+
+authRouters.delete(
+    '/sessions/:sessionId',
+    isAuthenticated(),
+    (c) => authControllers.revokeSession(c)
+)
+
 export {
     authRouters
 }

@@ -305,6 +305,53 @@ export class AuthControllers {
         }
     }
 
+    async sessions(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId as string;
+
+            const data = await this.authServices.getSessions(userId);
+            return c.json({
+                success: true,
+                data
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async revokeSession(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId as string;
+            const sessionId = c.req.param("sessionId") as string;
+
+            const response = await this.authServices.revokeSession(userId, sessionId);
+            return c.json({
+                success: true,
+                message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
     async login(c: Context<any, any, { out: { json: LoginSchemaDto } }>) {
         try {
             const { email, password } = c.req.valid("json");

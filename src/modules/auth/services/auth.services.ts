@@ -302,4 +302,39 @@ export class AuthServices {
 
         return "All sessions logged out successfully";
     }
+
+    async getSessions(userId: string) {
+        return this.db
+            .select({
+                id: refresh_tokens.id,
+                userAgent: refresh_tokens.userAgent,
+                userIp: refresh_tokens.userIp,
+                createdAt: refresh_tokens.createdAt,
+                lastUsedAt: refresh_tokens.lastUsedAt,
+                expiresAt: refresh_tokens.expiresAt,
+            })
+            .from(refresh_tokens)
+            .where(
+                sql`${refresh_tokens.userId} = ${userId} AND ${refresh_tokens.revokedAt} IS NULL AND ${refresh_tokens.expiresAt} > NOW()`
+            )
+            .orderBy(sql`${refresh_tokens.createdAt} DESC`);
+    }
+
+    async revokeSession(userId: string, sessionId: string): Promise<string> {
+        const [session] = await this.db
+            .select({ id: refresh_tokens.id })
+            .from(refresh_tokens)
+            .where(
+                sql`${refresh_tokens.id} = ${sessionId} AND ${refresh_tokens.userId} = ${userId}`
+            )
+            .limit(1);
+
+        if (!session) throw new CustomError("Session not found", 404);
+
+        await this.db.update(refresh_tokens)
+            .set({ revokedAt: new Date() })
+            .where(sql`${refresh_tokens.id} = ${sessionId}`);
+
+        return "Session revoked successfully";
+    }
 }
