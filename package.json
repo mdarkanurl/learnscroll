@@ -38,7 +38,8 @@
     "#rabbitmq": "./src/shared/rabbitmq/index.ts",
     "#queue": "./src/shared/queue/index.ts",
     "#utils": "./src/shared/utils/index.ts",
-    "#middlewares": "./src/shared/middlewares/index.ts"
+    "#middlewares": "./src/shared/middlewares/index.ts",
+    "#users": "./src/modules/users/index.ts"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.8",
