@@ -24,6 +24,8 @@ export const refresh_tokens = pgTable('refresh_tokens', {
     tokenHash: text("tokenHash").notNull(),
     expiresAt: timestamp("expiresAt").notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
+    userAgent: text("userAgent").notNull(),
+    userIp: text("userIp").notNull(),
     lastUsedAt: timestamp("lastUsedAt"),
     revokedAt: timestamp("revokedAt")
 }, (table) => [

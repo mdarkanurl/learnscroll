@@ -43,6 +43,13 @@
       "when": 1780476604463,
       "tag": "0005_living_genesis",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1780561052053,
+      "tag": "0006_dizzy_master_mold",
+      "breakpoints": true
     }
   ]
 }
