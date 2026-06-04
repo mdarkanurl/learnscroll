@@ -1,4 +1,4 @@
-import { db, users } from "#db";
+import { db, users, profiles } from "#db";
 import CustomError from "#error";
 import bcrypt from "bcryptjs";
 import { sql } from "drizzle-orm";
@@ -26,5 +26,22 @@ export class UserServices {
             .where(sql`lower(${users.email}) = lower(${email})`);
 
         return "Password changed successfully";
+    }
+
+    async me(userId: string) {
+        const [profile] = await this.db
+            .select()
+            .from(profiles)
+            .where(sql`${profiles.userId} = ${userId}::uuid`)
+            .limit(1);
+
+        if (profile) return profile;
+
+        const [newProfile] = await this.db
+            .insert(profiles)
+            .values({ userId })
+            .returning();
+
+        return newProfile;
     }
 }

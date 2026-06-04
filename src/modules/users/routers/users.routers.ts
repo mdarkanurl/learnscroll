@@ -12,7 +12,13 @@ usersRouters.post(
     zodVaildation(ChangePasswordSchema),
     isAuthenticated(),
     (c) => usersControllers.changePassword(c)
-)
+);
+
+usersRouters.get(
+    "/me",
+    isAuthenticated(),
+    (c) => usersControllers.me(c)
+);
 
 export {
     usersRouters

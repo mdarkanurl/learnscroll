@@ -8,27 +8,51 @@ export class UsersControllers {
     private readonly userServices = new UserServices();
 
     async changePassword(c: Context<any, any, { out: { json: ChangePasswordSchemaDto } }>) {
-            try {
-                const { currentPassword, newPassword } = c.req.valid("json");
-                const userEmail = c.get("jwtPayload")?.email;
-    
-                const response = await this.userServices.changePassword(userEmail, currentPassword, newPassword);
-    
-                return c.json({
-                    success: true,
-                    message: response
-                });
-            } catch (error) {
-                if (error instanceof CustomError) {
-                    return c.json({
-                        success: false,
-                        message: error.message
-                    }, error.statusCode as ContentfulStatusCode);
-                }
+        try {
+            const { currentPassword, newPassword } = c.req.valid("json");
+            const userEmail = c.get("jwtPayload")?.email;
+
+            const response = await this.userServices.changePassword(userEmail, currentPassword, newPassword);
+
+            return c.json({
+                success: true,
+                message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
                 return c.json({
                     success: false,
-                    message: "An unexpected error occurred"
-                }, 500);
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
             }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
         }
+    }
+
+    async me(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+            const profile = await this.userServices.me(userId);
+
+            return c.json({
+                success: true,
+                message: "Profile retrieved successfully",
+                data: profile
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
 }
