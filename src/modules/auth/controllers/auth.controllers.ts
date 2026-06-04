@@ -6,6 +6,7 @@ import type { SignupSchemaDto } from "../dto/signup.dto";
 import type { VerifyEmailSchemaDto } from "../dto/verify-email.dto";
 import type { ForgotPasswordSchemaDto } from "../dto/forgot-password.dto";
 import type { ResetPasswordSchemaDto } from "../dto/reset-password.dto";
+import type { VerifyPasswordSchemaDto } from "../dto/verify-password.dto";
 import CustomError from "#error";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { getConnInfo } from 'hono/bun'
@@ -338,6 +339,55 @@ export class AuthControllers {
                 success: true,
                 message: response
             });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async verifyPassword(c: Context<any, any, { out: { json: VerifyPasswordSchemaDto } }>) {
+        try {
+            const { password } = c.req.valid("json");
+            const email = c.get("jwtPayload")?.email as string;
+
+            const response = await this.authServices.verifyPassword(email, password);
+
+            return c.json({
+                success: true,
+                message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async deleteAccount(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId as string;
+
+            const response = await this.authServices.deleteAccount(userId);
+
+            deleteCookie(c, 'access_token');
+            deleteCookie(c, 'refresh_token');
+
+            return c.json({ success: true, message: response });
         } catch (error) {
             if (error instanceof CustomError) {
                 return c.json({

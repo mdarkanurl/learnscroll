@@ -7,6 +7,7 @@ import { ForgotPasswordSchema } from '../dto/forgot-password.dto';
 import { ResetPasswordSchema } from '../dto/reset-password.dto';
 import zodVaildation from '#validation';
 import { isAuthenticated } from "#middlewares";
+import { VerifyPasswordSchema } from "../dto/verify-password.dto";
 
 const authRouters = new Hono();
 const authControllers = new AuthControllers();
@@ -35,7 +36,7 @@ authRouters.post(
     (c) => authControllers.forgotPassword(c)
 )
 
-authRouters.put(
+authRouters.post(
     '/reset-password',
     zodVaildation(ResetPasswordSchema),
     (c) => authControllers.resetPassword(c)
@@ -69,6 +70,19 @@ authRouters.delete(
     isAuthenticated(),
     (c) => authControllers.revokeSession(c)
 )
+
+authRouters.post(
+    '/verify-password',
+    isAuthenticated(),
+    zodVaildation(VerifyPasswordSchema),
+    (c) => authControllers.verifyPassword(c)
+);
+
+authRouters.delete(
+    '/account',
+    isAuthenticated(),
+    (c) => authControllers.deleteAccount(c)
+);
 
 export {
     authRouters

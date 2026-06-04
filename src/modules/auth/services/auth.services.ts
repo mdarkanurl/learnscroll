@@ -1,4 +1,4 @@
-import { db, refresh_tokens, users } from "#db";
+import { db, profiles, refresh_tokens, users } from "#db";
 import redis from "#redis";
 import bcrypt from "bcryptjs";
 import { sql } from "drizzle-orm";
@@ -336,5 +336,30 @@ export class AuthServices {
             .where(sql`${refresh_tokens.id} = ${sessionId}`);
 
         return "Session revoked successfully";
+    }
+
+    async verifyPassword(email: string, password: string): Promise<string> {
+        const [user] = await this.db
+            .select({
+                id: users.id,
+                password: users.password
+            })
+            .from(users)
+            .where(sql`lower(${users.email}) = lower(${email})`)
+            .limit(1);
+
+        if (!user) throw new CustomError("User not found", 404);
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) throw new CustomError("Current password is incorrect", 401);
+
+        return "Password verified successfully";
+    }
+
+    async deleteAccount(userId: string): Promise<string> {
+        await this.db.delete(users)
+            .where(sql`${users.id} = ${userId}`);
+
+        return "Account deleted successfully";
     }
 }
