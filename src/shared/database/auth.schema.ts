@@ -29,5 +29,5 @@ export const refresh_tokens = pgTable('refresh_tokens', {
     lastUsedAt: timestamp("lastUsedAt"),
     revokedAt: timestamp("revokedAt")
 }, (table) => [
-    index('userIdIndex').on(table.userId),
+    index('userIdIndex_refresh_tokens').on(table.userId),
 ]);

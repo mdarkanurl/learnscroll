@@ -1,5 +1,6 @@
 export { db } from "./db";
 export {
     users,
-    refresh_tokens
+    refresh_tokens,
+    profiles
 } from "./schema";
