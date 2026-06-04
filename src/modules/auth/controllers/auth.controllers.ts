@@ -9,6 +9,7 @@ import type { ForgotPasswordSchemaDto } from "../dto/forgot-password.dto";
 import type { ResetPasswordSchemaDto } from "../dto/reset-password.dto";
 import CustomError from "#error";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { getConnInfo } from 'hono/bun'
 
 export class AuthControllers {
     constructor(
@@ -60,6 +61,8 @@ export class AuthControllers {
         try {
             const { code } = c.req.valid("json");
             const token = getCookie(c, "verify_email_token");
+            const info = getConnInfo(c);
+            const ipAddress = info.remote.address;
 
             if (!token) {
                 return c.json({
@@ -68,7 +71,15 @@ export class AuthControllers {
                 }, 400);
             }
 
-            const response = await this.authServices.verifyEmail(token, code);
+            const response = await this.authServices
+                .verifyEmail(
+                    {
+                        userAgent: c.req.header("User-Agent") || "Unknown",
+                        userIp: ipAddress || "Unknown"
+                    },
+                    token,
+                    code
+                );
 
             if(typeof response === "string")
                 return c.json({
@@ -194,7 +205,16 @@ export class AuthControllers {
                 }, 400);
             }
 
-            const response = await this.authServices.refreshToken(token);
+            const info = getConnInfo(c);
+            const ipAddress = info.remote.address;
+
+            const response = await this.authServices.refreshToken(
+                {
+                    userAgent: c.req.header("User-Agent") || "Unknown",
+                    userIp: ipAddress || "Unknown"
+                },
+                token
+            );
 
             setCookie(c, 'access_token', response.accessToken, {
                 path: '/',
@@ -287,8 +307,18 @@ export class AuthControllers {
     async login(c: Context<any, any, { out: { json: LoginSchemaDto } }>) {
         try {
             const { email, password } = c.req.valid("json");
+            const info = getConnInfo(c);
+            const ipAddress = info.remote.address;
 
-            const response = await this.authServices.login(email, password);
+            const response = await this.authServices
+                .login(
+                    {
+                        userAgent: c.req.header("User-Agent") || "Unknown",
+                        userIp: ipAddress || "Unknown"
+                    },
+                    email,
+                    password
+                );
 
             setCookie(c, 'access_token', response.accessToken, {
                 path: '/',

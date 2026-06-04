@@ -66,7 +66,11 @@ export class AuthServices {
         }
     }
 
-    async verifyEmail(token: string, code: number): Promise<{ message: string, accessToken: string, refreshToken: string }> {
+    async verifyEmail(
+        userInfo: { userAgent: string; userIp: string },
+        token: string,
+        code: number
+    ): Promise<{ message: string, accessToken: string, refreshToken: string }> {
         try {
             const payload = this.jwtUtils.verifyJwtToken(token) as { email: string };
             const { email } = payload;
@@ -93,7 +97,7 @@ export class AuthServices {
 
             await this.redis.del(pendingKey);
 
-            const accessToken = this.jwtUtils.generateJwtToken({ userId: user?.id, email: user?.email }, 60 * 30);
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: user?.id, email: user?.email }, 60 * 15);
             const refreshToken = this.jwtUtils.generateJwtToken({ userId: user?.id }, 60 * 60 * 24 * 30);
 
             // hash the refreshtoken
@@ -103,7 +107,9 @@ export class AuthServices {
             await this.db.insert(refresh_tokens).values({
                 userId: user?.id as string,
                 tokenHash: hashedRefreshToken,
-                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                userAgent: userInfo.userAgent,
+                userIp: userInfo.userIp
             });
             
             return {
@@ -119,7 +125,11 @@ export class AuthServices {
         }
     }
 
-    async login(email: string, password: string): Promise<{ message: string, accessToken: string, refreshToken: string }> {
+    async login(
+        userInfo: { userAgent: string; userIp: string },
+        email: string,
+        password: string
+    ): Promise<{ message: string, accessToken: string, refreshToken: string }> {
         try {
             const [user] = await this.db
                 .select()
@@ -133,7 +143,7 @@ export class AuthServices {
 
             if (!isPasswordValid) throw new CustomError("Invalid email or password", 401);
 
-            const accessToken = this.jwtUtils.generateJwtToken({ userId: user.id, email: user.email }, 60 * 30);
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: user.id, email: user.email }, 60 * 15);
             const refreshToken = this.jwtUtils.generateJwtToken({ userId: user.id }, 60 * 60 * 24 * 30);
 
             const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
@@ -141,7 +151,9 @@ export class AuthServices {
             await this.db.insert(refresh_tokens).values({
                 userId: user.id,
                 tokenHash: hashedRefreshToken,
-                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                userAgent: userInfo.userAgent,
+                userIp: userInfo.userIp
             });
 
             return {
@@ -229,7 +241,10 @@ export class AuthServices {
         }
     }
 
-    async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
+    async refreshToken(
+        userInfo: { userAgent: string; userIp: string },
+        token: string
+    ): Promise<{ accessToken: string; refreshToken: string }> {
         try {
             const payload = this.jwtUtils.verifyJwtToken(token) as { userId: string };
 
@@ -245,7 +260,7 @@ export class AuthServices {
             const isTokenValid = await bcrypt.compare(token, storedToken.tokenHash);
             if (!isTokenValid) throw new CustomError("Invalid refresh token", 401);
 
-            const accessToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 30);
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 15);
             const newRefreshToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 60 * 24 * 30);
 
             const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
@@ -258,7 +273,9 @@ export class AuthServices {
             await this.db.insert(refresh_tokens).values({
                 userId: payload.userId,
                 tokenHash: hashedRefreshToken,
-                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                userAgent: userInfo.userAgent,
+                userIp: userInfo.userIp
             });
 
             return { accessToken, refreshToken: newRefreshToken };
