@@ -3,7 +3,6 @@ import { Hono } from 'hono';
 import { LoginSchema } from '../dto/login.dto';
 import { SignupSchema } from '../dto/signup.dto';
 import { VerifyEmailSchema } from '../dto/verify-email.dto';
-import { ChangePasswordSchema } from '../dto/change-password.dto';
 import { ForgotPasswordSchema } from '../dto/forgot-password.dto';
 import { ResetPasswordSchema } from '../dto/reset-password.dto';
 import zodVaildation from '#validation';
@@ -52,14 +51,6 @@ authRouters.post(
     isAuthenticated(),
     (c) => authControllers.logout(c)
 )
-
-authRouters.put(
-    '/change-password',
-    isAuthenticated(),
-    zodVaildation(ChangePasswordSchema),
-    (c) => authControllers.changePassword(c)
-)
-
 
 export {
     authRouters

@@ -4,7 +4,6 @@ import { AuthServices } from "../services/auth.services";
 import type { LoginSchemaDto } from "../dto/login.dto";
 import type { SignupSchemaDto } from "../dto/signup.dto";
 import type { VerifyEmailSchemaDto } from "../dto/verify-email.dto";
-import type { ChangePasswordSchemaDto } from "../dto/change-password.dto";
 import type { ForgotPasswordSchemaDto } from "../dto/forgot-password.dto";
 import type { ResetPasswordSchemaDto } from "../dto/reset-password.dto";
 import CustomError from "#error";
@@ -12,11 +11,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { getConnInfo } from 'hono/bun'
 
 export class AuthControllers {
-    constructor(
-        private readonly authServices = new AuthServices()
-    ) {
-        this.authServices = authServices;
-    }
+    private readonly authServices = new AuthServices();
 
     async signup(c: Context<any, any, { out: { json: SignupSchemaDto } }>) {
         try {
@@ -260,31 +255,6 @@ export class AuthControllers {
 
             deleteCookie(c, 'access_token');
             deleteCookie(c, 'refresh_token');
-
-            return c.json({
-                success: true,
-                message: response
-            });
-        } catch (error) {
-            if (error instanceof CustomError) {
-                return c.json({
-                    success: false,
-                    message: error.message
-                }, error.statusCode as ContentfulStatusCode);
-            }
-            return c.json({
-                success: false,
-                message: "An unexpected error occurred"
-            }, 500);
-        }
-    }
-
-    async changePassword(c: Context<any, any, { out: { json: ChangePasswordSchemaDto } }>) {
-        try {
-            const { currentPassword, newPassword } = c.req.valid("json");
-            const userEmail = c.get("jwtPayload")?.email;
-
-            const response = await this.authServices.changePassword(userEmail, currentPassword, newPassword);
 
             return c.json({
                 success: true,
