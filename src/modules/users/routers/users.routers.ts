@@ -15,9 +15,9 @@ usersRouters.post(
 );
 
 usersRouters.get(
-    "/me",
+    "/profiles",
     isAuthenticated(),
-    (c) => usersControllers.me(c)
+    (c) => usersControllers.profiles(c)
 );
 
 export {

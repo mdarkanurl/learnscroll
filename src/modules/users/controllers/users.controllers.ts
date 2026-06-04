@@ -32,14 +32,13 @@ export class UsersControllers {
         }
     }
 
-    async me(c: Context) {
+    async profiles(c: Context) {
         try {
             const userId = c.get("jwtPayload")?.userId;
-            const profile = await this.userServices.me(userId);
+            const profile = await this.userServices.profiles(userId);
 
             return c.json({
                 success: true,
-                message: "Profile retrieved successfully",
                 data: profile
             });
         } catch (error) {

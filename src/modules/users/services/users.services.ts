@@ -1,7 +1,7 @@
 import { db, users, profiles } from "#db";
 import CustomError from "#error";
 import bcrypt from "bcryptjs";
-import { sql } from "drizzle-orm";
+import { sql, getTableColumns } from "drizzle-orm";
 
 
 export class UserServices {
@@ -28,20 +28,32 @@ export class UserServices {
         return "Password changed successfully";
     }
 
-    async me(userId: string) {
+    async profiles(userIdFromReq: string) {
+        const { id, userId, ...rest } = getTableColumns(profiles);
+
         const [profile] = await this.db
-            .select()
+            .select(rest)
             .from(profiles)
-            .where(sql`${profiles.userId} = ${userId}::uuid`)
+            .where(sql`${profiles.userId} = ${userIdFromReq}`)
+            .limit(1);
+        
+        // get name of users
+        const [user] = await this.db
+            .select({
+                firstname: users.firstname,
+                lastname: users.lastname
+            })
+            .from(users)
+            .where(sql`${users.id} = ${userIdFromReq}`)
             .limit(1);
 
-        if (profile) return profile;
+        if (profile) return { ...user, ...profile };
 
         const [newProfile] = await this.db
             .insert(profiles)
-            .values({ userId })
+            .values({ userId: userIdFromReq })
             .returning();
 
-        return newProfile;
+        return { ...user, ...newProfile };
     }
 }
