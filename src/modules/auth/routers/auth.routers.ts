@@ -52,6 +52,12 @@ authRouters.post(
     (c) => authControllers.logout(c)
 )
 
+authRouters.post(
+    '/logout-all',
+    isAuthenticated(),
+    (c) => authControllers.logoutAll(c)
+)
+
 export {
     authRouters
 }

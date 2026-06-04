@@ -251,7 +251,38 @@ export class AuthControllers {
         try {
             const userId = c.get("jwtPayload")?.userId;
 
-            const response = await this.authServices.logout(userId);
+            const response = await this.authServices
+            .logout(
+                c.req.header("User-Agent") || "Unknown",
+                userId
+            );
+
+            deleteCookie(c, 'access_token');
+            deleteCookie(c, 'refresh_token');
+
+            return c.json({
+                success: true,
+                message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async logoutAll(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+
+            const response = await this.authServices.logoutAll(userId);
 
             deleteCookie(c, 'access_token');
             deleteCookie(c, 'refresh_token');

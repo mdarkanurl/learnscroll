@@ -287,11 +287,19 @@ export class AuthServices {
         }
     }
 
-    async logout(userId: string): Promise<string> {
+    async logout(userAgent: string, userId: string): Promise<string> {
+        await this.db.update(refresh_tokens)
+            .set({ revokedAt: new Date() })
+            .where(sql`${refresh_tokens.userId} = ${userId} AND ${refresh_tokens.userAgent} = ${userAgent}`);
+
+        return "Logged out successfully";
+    }
+
+    async logoutAll(userId: string): Promise<string> {
         await this.db.update(refresh_tokens)
             .set({ revokedAt: new Date() })
             .where(sql`${refresh_tokens.userId} = ${userId}`);
 
-        return "Logged out successfully";
+        return "All sessions logged out successfully";
     }
 }
