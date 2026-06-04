@@ -57,6 +57,13 @@
       "when": 1780564564684,
       "tag": "0007_concerned_viper",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780566359485,
+      "tag": "0008_regular_vance_astro",
+      "breakpoints": true
     }
   ]
 }

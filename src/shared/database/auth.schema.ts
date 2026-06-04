@@ -20,7 +20,7 @@ export function lower(email: AnyPgColumn): SQL {
 
 export const refresh_tokens = pgTable('refresh_tokens', {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("userId").references(() => users.id).notNull(),
+    userId: uuid("userId").references(() => users.id, { onDelete: 'cascade' }).notNull(),
     tokenHash: text("tokenHash").notNull(),
     expiresAt: timestamp("expiresAt").notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
