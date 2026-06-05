@@ -1,3 +1,4 @@
+import { enableMFASchema } from './../dto/enable-mfa.dto';
 import { UsersControllers } from './../controllers/users.controllers';
 import { Hono } from 'hono';
 import zodVaildation from '#validation';
@@ -15,6 +16,13 @@ usersRouters.post(
     zodVaildation(ChangePasswordSchema),
     isAuthenticated(),
     (c) => usersControllers.changePassword(c)
+);
+
+usersRouters.put(
+    "/mfa",
+    zodVaildation(enableMFASchema),
+    isAuthenticated(),
+    (c) => usersControllers.enableMfa(c)
 );
 
 usersRouters.put(

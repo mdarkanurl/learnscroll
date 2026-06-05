@@ -1,4 +1,4 @@
-import { db, users, profiles, privacySettings } from "#db";
+import { db, refresh_tokens, users, profiles, privacySettings } from "#db";
 import CustomError from "#error";
 import bcrypt from "bcryptjs";
 import { sql, eq, getTableColumns } from "drizzle-orm";
@@ -29,6 +29,26 @@ export class UserServices {
             .where(sql`lower(${users.email}) = lower(${email})`);
 
         return "Password changed successfully";
+    }
+
+    async enableMfa(enabled: boolean, userId: string, email: string) {
+        const [user] = await this.db
+            .select({ id: users.id })
+            .from(users)
+            .where(eq(users.email, email))
+            .limit(1);
+
+        if (!user) throw new CustomError("User not found", 404);
+
+        await this.db.update(users)
+        .set({ mfaEnabled: enabled })
+        .where(eq(users.email, email));
+
+        await this.db.update(refresh_tokens)
+            .set({ revokedAt: new Date() })
+            .where(eq(refresh_tokens.userId, userId));
+
+        return "Multi-factor authentication enabled";
     }
 
     async updatePrivacySetting(

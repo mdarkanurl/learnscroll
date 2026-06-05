@@ -6,7 +6,9 @@ import type { UpdateNameSchemaDto } from "../dto/update-name.dto";
 import type { UpdatePrivacySchemaDto } from "../dto/update-privacy.dto";
 import CustomError from "#error";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { deleteCookie } from "hono/cookie";
 import { UserServices } from "../services/users.services";
+import type { enableMFASchemaDto } from '../dto/enable-mfa.dto';
 
 export class UsersControllers {
     private readonly userServices = new UserServices();
@@ -21,6 +23,34 @@ export class UsersControllers {
             return c.json({
                 success: true,
                 message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async enableMfa(c: Context<any, any, { out: { json: enableMFASchemaDto } }>) {
+        try {
+            const { email, userId } = c.get("jwtPayload");
+            const { enabled } = c.req.valid("json");
+
+            await this.userServices.enableMfa(enabled, userId, email);
+
+            deleteCookie(c, 'access_token');
+            deleteCookie(c, 'refresh_token');
+
+            return c.json({
+                success: true,
+                message: "Multi-factor authentication status changed"
             });
         } catch (error) {
             if (error instanceof CustomError) {
