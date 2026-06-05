@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import zodVaildation from '#validation';
 import { isAuthenticated } from "#middlewares";
 import { ChangePasswordSchema } from '../dto/change-password.dto';
+import { UpdateProfileSchema } from '../dto/update-profile.dto';
 
 const usersRouters = new Hono();
 const usersControllers = new UsersControllers();
@@ -18,6 +19,13 @@ usersRouters.get(
     "/me",
     isAuthenticated(),
     (c) => usersControllers.me(c)
+);
+
+usersRouters.put(
+    "/profiles",
+    zodVaildation(UpdateProfileSchema),
+    isAuthenticated(),
+    (c) => usersControllers.updateProfile(c)
 );
 
 usersRouters.get(

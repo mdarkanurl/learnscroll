@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import type { ChangePasswordSchemaDto } from "../dto/change-password.dto";
+import type { UpdateProfileSchemaDto } from "../dto/update-profile.dto";
 import CustomError from "#error";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { UserServices } from "../services/users.services";
@@ -17,6 +18,31 @@ export class UsersControllers {
             return c.json({
                 success: true,
                 message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async updateProfile(c: Context<any, any, { out: { json: UpdateProfileSchemaDto } }>) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+            const data = c.req.valid("json");
+            const profile = await this.userServices.updateProfile(userId, data);
+            console.log(profile)
+
+            return c.json({
+                success: true,
+                data: profile
             });
         } catch (error) {
             if (error instanceof CustomError) {
