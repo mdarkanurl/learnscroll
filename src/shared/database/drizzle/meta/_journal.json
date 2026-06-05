@@ -85,6 +85,13 @@
       "when": 1780661916266,
       "tag": "0011_goofy_deadpool",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1780674065792,
+      "tag": "0012_next_juggernaut",
+      "breakpoints": true
     }
   ]
 }

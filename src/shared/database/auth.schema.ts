@@ -1,4 +1,4 @@
-import { index, pgTable, text, timestamp, uniqueIndex, uuid, varchar, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, timestamp, uniqueIndex, uuid, varchar, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { SQL, sql } from "drizzle-orm";
 
 
@@ -8,6 +8,7 @@ export const users = pgTable('users', {
     lastname: varchar('lastname', { length: 256 }).notNull(),
     email: text('email').notNull(),
     password: text('password').notNull(),
+    mfaEnabled: boolean('mfa_enabled').default(false).notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 }, (table) => [
