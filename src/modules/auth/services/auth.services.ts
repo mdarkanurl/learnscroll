@@ -98,7 +98,7 @@ export class AuthServices {
             await this.redis.del(pendingKey);
 
             const accessToken = this.jwtUtils.generateJwtToken({ userId: user?.id, email: user?.email }, 60 * 15);
-            const refreshToken = this.jwtUtils.generateJwtToken({ userId: user?.id }, 60 * 60 * 24 * 30);
+            const refreshToken = this.jwtUtils.generateJwtToken({ userId: user?.id, email: user?.email }, 60 * 60 * 24 * 30);
 
             // hash the refreshtoken
             const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
@@ -165,7 +165,7 @@ export class AuthServices {
             }
 
             const accessToken = this.jwtUtils.generateJwtToken({ userId: user.id, email: user.email }, 60 * 15);
-            const refreshToken = this.jwtUtils.generateJwtToken({ userId: user.id }, 60 * 60 * 24 * 30);
+            const refreshToken = this.jwtUtils.generateJwtToken({ userId: user.id, email: user.email }, 60 * 60 * 24 * 30);
 
             const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
@@ -210,7 +210,7 @@ export class AuthServices {
             await this.redis.del(mfaKey);
 
             const accessToken = this.jwtUtils.generateJwtToken({ userId: payload.userId, email: payload.email }, 60 * 15);
-            const refreshToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 60 * 24 * 30);
+            const refreshToken = this.jwtUtils.generateJwtToken({ userId: payload.userId, email: payload.email }, 60 * 60 * 24 * 30);
 
             const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
@@ -312,7 +312,7 @@ export class AuthServices {
         token: string
     ): Promise<{ accessToken: string; refreshToken: string }> {
         try {
-            const payload = this.jwtUtils.verifyJwtToken(token) as { userId: string };
+            const payload = this.jwtUtils.verifyJwtToken(token) as { userId: string, email: string};
 
             const [storedToken] = await this.db
                 .select()
@@ -326,8 +326,8 @@ export class AuthServices {
             const isTokenValid = await bcrypt.compare(token, storedToken.tokenHash);
             if (!isTokenValid) throw new CustomError("Invalid refresh token", 401);
 
-            const accessToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 15);
-            const newRefreshToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 60 * 24 * 30);
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: payload.userId, email: payload.email }, 60 * 15);
+            const newRefreshToken = this.jwtUtils.generateJwtToken({ userId: payload.userId, email: payload.email }, 60 * 60 * 24 * 30);
 
             const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
 
