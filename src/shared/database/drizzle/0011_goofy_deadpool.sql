@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" ALTER COLUMN "profile_picture" SET DATA TYPE text;

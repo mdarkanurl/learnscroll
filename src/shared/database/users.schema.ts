@@ -4,7 +4,7 @@ import { users } from "./auth.schema";
 export const profiles = pgTable('profiles', {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("userId").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-    profilePicture: varchar('profile_picture', { length: 60 }),
+    profilePicture: text('profile_picture'),
     headline: varchar('headline', { length: 60 }),
     biography: text('biography'),
     language: varchar('language', { length: 10 }),
