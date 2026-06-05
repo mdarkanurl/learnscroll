@@ -3,6 +3,7 @@ import CustomError from "#error";
 import bcrypt from "bcryptjs";
 import { sql, eq, getTableColumns } from "drizzle-orm";
 import type { UpdateProfileSchemaDto } from "../dto/update-profile.dto";
+import type { UpdateNameSchemaDto } from "../dto/update-name.dto";
 
 
 export class UserServices {
@@ -27,6 +28,19 @@ export class UserServices {
             .where(sql`lower(${users.email}) = lower(${email})`);
 
         return "Password changed successfully";
+    }
+
+    async updateName(email: string, data: UpdateNameSchemaDto) {
+        const [updated] = await this.db
+            .update(users)
+            .set(data)
+            .where(eq(users.email, email))
+            .returning({
+                firstname: users.firstname,
+                lastname: users.lastname
+            });
+
+        return updated;
     }
 
     async updateProfile(userIdFromReq: string, data: UpdateProfileSchemaDto) {

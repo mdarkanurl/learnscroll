@@ -4,6 +4,7 @@ import zodVaildation from '#validation';
 import { isAuthenticated } from "#middlewares";
 import { ChangePasswordSchema } from '../dto/change-password.dto';
 import { UpdateProfileSchema } from '../dto/update-profile.dto';
+import { UpdateNameSchema } from '../dto/update-name.dto';
 
 const usersRouters = new Hono();
 const usersControllers = new UsersControllers();
@@ -13,6 +14,13 @@ usersRouters.post(
     zodVaildation(ChangePasswordSchema),
     isAuthenticated(),
     (c) => usersControllers.changePassword(c)
+);
+
+usersRouters.put(
+    "/update-name",
+    zodVaildation(UpdateNameSchema),
+    isAuthenticated(),
+    (c) => usersControllers.updateName(c)
 );
 
 usersRouters.get(
