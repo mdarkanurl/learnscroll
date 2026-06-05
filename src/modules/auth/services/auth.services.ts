@@ -129,7 +129,8 @@ export class AuthServices {
         userInfo: { userAgent: string; userIp: string },
         email: string,
         password: string
-    ): Promise<{ message: string, accessToken: string, refreshToken: string }> {
+    ): Promise<{ message: string, mfaRequired: false, accessToken: string, refreshToken: string } |
+    { message: string, mfaRequired: true, mfaToken: string }> {
         try {
             const [user] = await this.db
                 .select()
@@ -143,6 +144,26 @@ export class AuthServices {
 
             if (!isPasswordValid) throw new CustomError("Invalid email or password", 401);
 
+            if (user.mfaEnabled) {
+                const mfaCode = Math.floor(100000 + Math.random() * 900000).toString();
+                const mfaToken = this.jwtUtils.generateJwtToken({ userId: user.id, email: user.email }, 60 * 5); // 5 min
+
+                const mfaKey = `mfa:${user.id}:${mfaToken}`;
+                await this.redis.set(mfaKey, JSON.stringify({ code: mfaCode, userInfo }), "EX", 300);
+
+                await sendEmail({
+                    email: user.email,
+                    subject: "Your verification code",
+                    body: `Your verification code is: ${mfaCode}`
+                });
+
+                return {
+                    message: "MFA code sent to your email",
+                    mfaRequired: true,
+                    mfaToken
+                };
+            }
+
             const accessToken = this.jwtUtils.generateJwtToken({ userId: user.id, email: user.email }, 60 * 15);
             const refreshToken = this.jwtUtils.generateJwtToken({ userId: user.id }, 60 * 60 * 24 * 30);
 
@@ -150,6 +171,51 @@ export class AuthServices {
 
             await this.db.insert(refresh_tokens).values({
                 userId: user.id,
+                tokenHash: hashedRefreshToken,
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                userAgent: userInfo.userAgent,
+                userIp: userInfo.userIp
+            });
+
+            return {
+                message: "Login successful",
+                mfaRequired: false,
+                accessToken,
+                refreshToken
+            };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            if(error instanceof jwt.JsonWebTokenError) throw new CustomError("Invalid token", 400);
+            if(error instanceof jwt.TokenExpiredError) throw new CustomError("Expired token", 400);
+            throw error;
+        }
+    }
+
+    async verifyMfa(
+        mfaToken: string,
+        code: number
+    ): Promise<{ message: string, accessToken: string, refreshToken: string }> {
+        try {
+            const payload = this.jwtUtils.verifyJwtToken(mfaToken) as { userId: string; email: string };
+
+            const mfaKey = `mfa:${payload.userId}:${mfaToken}`;
+            const stored = await this.redis.get(mfaKey);
+
+            if (!stored) throw new CustomError("Invalid or expired MFA code", 400);
+
+            const { code: storedCode, userInfo } = JSON.parse(stored);
+
+            if (storedCode !== code.toString()) throw new CustomError("Invalid MFA code", 400);
+
+            await this.redis.del(mfaKey);
+
+            const accessToken = this.jwtUtils.generateJwtToken({ userId: payload.userId, email: payload.email }, 60 * 15);
+            const refreshToken = this.jwtUtils.generateJwtToken({ userId: payload.userId }, 60 * 60 * 24 * 30);
+
+            const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+            await this.db.insert(refresh_tokens).values({
+                userId: payload.userId,
                 tokenHash: hashedRefreshToken,
                 expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                 userAgent: userInfo.userAgent,

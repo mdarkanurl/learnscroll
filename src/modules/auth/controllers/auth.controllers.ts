@@ -7,6 +7,7 @@ import type { VerifyEmailSchemaDto } from "../dto/verify-email.dto";
 import type { ForgotPasswordSchemaDto } from "../dto/forgot-password.dto";
 import type { ResetPasswordSchemaDto } from "../dto/reset-password.dto";
 import type { VerifyPasswordSchemaDto } from "../dto/verify-password.dto";
+import type { VerifyMfaSchemaDto } from "../dto/verify-mfa.dto";
 import CustomError from "#error";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { getConnInfo } from 'hono/bun'
@@ -402,6 +403,58 @@ export class AuthControllers {
         }
     }
 
+    async verifyMfa(c: Context<any, any, { out: { json: VerifyMfaSchemaDto } }>) {
+        try {
+            const { code } = c.req.valid("json");
+            const mfaToken = getCookie(c, "mfa_token");
+
+            if (!mfaToken) {
+                return c.json({
+                    success: false,
+                    message: "MFA token not found"
+                }, 400);
+            }
+
+            const response = await this.authServices.verifyMfa(mfaToken, code);
+
+            setCookie(c, 'access_token', response.accessToken, {
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                httpOnly: true,
+                maxAge: 30 * 60,
+                expires: new Date(Date.now() + 30 * 60 * 1000),
+                sameSite: 'Lax',
+            });
+
+            setCookie(c, 'refresh_token', response.refreshToken, {
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                httpOnly: true,
+                maxAge: 30 * 24 * 60 * 60,
+                expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                sameSite: 'Lax',
+            });
+
+            deleteCookie(c, 'mfa_token');
+
+            return c.json({
+                success: true,
+                message: response.message
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
     async login(c: Context<any, any, { out: { json: LoginSchemaDto } }>) {
         try {
             const { email, password } = c.req.valid("json");
@@ -417,6 +470,22 @@ export class AuthControllers {
                     email,
                     password
                 );
+
+            if (response.mfaRequired) {
+                setCookie(c, 'mfa_token', response.mfaToken, {
+                    path: '/',
+                    secure: process.env.NODE_ENV === 'production',
+                    httpOnly: true,
+                    maxAge: 5 * 60,
+                    expires: new Date(Date.now() + 5 * 60 * 1000),
+                    sameSite: 'Lax',
+                });
+
+                return c.json({
+                    success: true,
+                    message: response.message
+                });
+            }
 
             setCookie(c, 'access_token', response.accessToken, {
                 path: '/',

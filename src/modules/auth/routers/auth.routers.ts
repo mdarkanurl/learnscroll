@@ -8,6 +8,7 @@ import { ResetPasswordSchema } from '../dto/reset-password.dto';
 import zodVaildation from '#validation';
 import { isAuthenticated } from "#middlewares";
 import { VerifyPasswordSchema } from "../dto/verify-password.dto";
+import { VerifyMfaSchema } from "../dto/verify-mfa.dto";
 
 const authRouters = new Hono();
 const authControllers = new AuthControllers();
@@ -22,6 +23,12 @@ authRouters.post(
     '/verify-email',
     zodVaildation(VerifyEmailSchema),
     (c) => authControllers.verifyEmail(c)
+);
+
+authRouters.post(
+    '/mfa/verify',
+    zodVaildation(VerifyMfaSchema),
+    (c) => authControllers.verifyMfa(c)
 );
 
 authRouters.post(
