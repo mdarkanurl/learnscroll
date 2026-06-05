@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { sql, eq, getTableColumns } from "drizzle-orm";
 import type { UpdateProfileSchemaDto } from "../dto/update-profile.dto";
 import type { UpdateNameSchemaDto } from "../dto/update-name.dto";
+import { uploadImage } from '#cloudinary';
 
 
 export class UserServices {
@@ -28,6 +29,33 @@ export class UserServices {
             .where(sql`lower(${users.email}) = lower(${email})`);
 
         return "Password changed successfully";
+    }
+
+    async updateProfilePicture(userId: string, buffer: Buffer) {
+        const url = await uploadImage(buffer, "profile_picture");
+
+        const [existing] = await this.db
+            .select({ id: profiles.id })
+            .from(profiles)
+            .where(eq(profiles.userId, userId))
+            .limit(1);
+
+        if (!existing) {
+            const [profile] = await this.db
+                .insert(profiles)
+                .values({ userId, profilePicture: url })
+                .returning({ profilePicture: profiles.profilePicture });
+
+            return profile;
+        }
+
+        const [updated] = await this.db
+            .update(profiles)
+            .set({ profilePicture: url })
+            .where(eq(profiles.userId, userId))
+            .returning({ profilePicture: profiles.profilePicture });
+
+        return updated;
     }
 
     async updateName(email: string, data: UpdateNameSchemaDto) {

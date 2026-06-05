@@ -17,6 +17,12 @@ usersRouters.post(
 );
 
 usersRouters.put(
+    "/profile-picture",
+    isAuthenticated(),
+    (c) => usersControllers.updateProfilePicture(c)
+);
+
+usersRouters.put(
     "/update-name",
     zodVaildation(UpdateNameSchema),
     isAuthenticated(),
