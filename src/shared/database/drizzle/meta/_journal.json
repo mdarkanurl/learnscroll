@@ -71,6 +71,13 @@
       "when": 1780590786467,
       "tag": "0009_dry_chimera",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1780659428177,
+      "tag": "0010_magical_millenium_guard",
+      "breakpoints": true
     }
   ]
 }
