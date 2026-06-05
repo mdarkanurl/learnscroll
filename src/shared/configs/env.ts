@@ -19,4 +19,8 @@ export const env = {
   rabbitmqUrl: getEnv("RABBITMQ_URL"),
   resendApiKey: getEnv("RESEND_API_KEY"),
   jwtSecret: getEnv("JWT_SECRET"),
+
+  cloudinaryCloudName: getEnv("CLOUDINARY_CLOUD_NAME"),
+  cloudinaryApiKey: getEnv("CLOUDINARY_API_KEY"),
+  cloudinaryApiSecret: getEnv("CLOUDINARY_API_SECRET"),
 };

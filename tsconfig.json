@@ -38,6 +38,7 @@
       "#queue": ["./src/shared/queue/index.ts"],
       "#utils": ["./src/shared/utils/index.ts"],
       "#middlewares": ["./src/shared/middlewares/index.ts"],
+      "#cloudinary": ["./src/shared/cloudinary/index.ts"],
       "#users": ["./src/modules/users/index.ts"]
     }
   }
