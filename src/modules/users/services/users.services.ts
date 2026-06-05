@@ -1,4 +1,4 @@
-import { db, users, profiles } from "#db";
+import { db, users, profiles, privacySettings } from "#db";
 import CustomError from "#error";
 import bcrypt from "bcryptjs";
 import { sql, eq, getTableColumns } from "drizzle-orm";
@@ -29,6 +29,54 @@ export class UserServices {
             .where(sql`lower(${users.email}) = lower(${email})`);
 
         return "Password changed successfully";
+    }
+
+    async updatePrivacySetting(
+        userId: string,
+        field: 'profileStatus' | 'coursesYourTakingStatus',
+        value: boolean
+    ): Promise<{ profile_status: boolean } | { courses_visible_status: boolean }> {
+        const [existing] = await this.db
+            .select({ id: privacySettings.id })
+            .from(privacySettings)
+            .where(eq(privacySettings.userId, userId))
+            .limit(1);
+
+        if (field === 'profileStatus') {
+            if (!existing) {
+                const [setting] = await this.db
+                    .insert(privacySettings)
+                    .values({ userId, profileStatus: value })
+                    .returning({ profile_status: privacySettings.profileStatus });
+
+                return setting!;
+            }
+
+            const [updated] = await this.db
+                .update(privacySettings)
+                .set({ profileStatus: value })
+                .where(eq(privacySettings.userId, userId))
+                .returning({ profile_status: privacySettings.profileStatus });
+
+            return updated!;
+        }
+
+        if (!existing) {
+            const [setting] = await this.db
+                .insert(privacySettings)
+                .values({ userId, coursesYourTakingStatus: value })
+                .returning({ courses_visible_status: privacySettings.coursesYourTakingStatus });
+
+            return setting!;
+        }
+
+        const [updated] = await this.db
+            .update(privacySettings)
+            .set({ coursesYourTakingStatus: value })
+            .where(eq(privacySettings.userId, userId))
+            .returning({ courses_visible_status: privacySettings.coursesYourTakingStatus });
+
+        return updated!;
     }
 
     async updateProfilePicture(userId: string, buffer: Buffer) {

@@ -3,6 +3,7 @@ import type { Context } from "hono";
 import type { ChangePasswordSchemaDto } from "../dto/change-password.dto";
 import type { UpdateProfileSchemaDto } from "../dto/update-profile.dto";
 import type { UpdateNameSchemaDto } from "../dto/update-name.dto";
+import type { UpdatePrivacySchemaDto } from "../dto/update-privacy.dto";
 import CustomError from "#error";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { UserServices } from "../services/users.services";
@@ -20,6 +21,54 @@ export class UsersControllers {
             return c.json({
                 success: true,
                 message: response
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async updateProfileStatus(c: Context<any, any, { out: { json: UpdatePrivacySchemaDto } }>) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+            const { enabled } = c.req.valid("json");
+            const result = await this.userServices.updatePrivacySetting(userId, 'profileStatus', enabled);
+
+            return c.json({
+                success: true,
+                data: result
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async updateCoursesVisible(c: Context<any, any, { out: { json: UpdatePrivacySchemaDto } }>) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+            const { enabled } = c.req.valid("json");
+            const result = await this.userServices.updatePrivacySetting(userId, 'coursesYourTakingStatus', enabled);
+
+            return c.json({
+                success: true,
+                data: result
             });
         } catch (error) {
             if (error instanceof CustomError) {

@@ -5,6 +5,7 @@ import { isAuthenticated } from "#middlewares";
 import { ChangePasswordSchema } from '../dto/change-password.dto';
 import { UpdateProfileSchema } from '../dto/update-profile.dto';
 import { UpdateNameSchema } from '../dto/update-name.dto';
+import { UpdatePrivacySchema } from '../dto/update-privacy.dto';
 
 const usersRouters = new Hono();
 const usersControllers = new UsersControllers();
@@ -14,6 +15,20 @@ usersRouters.post(
     zodVaildation(ChangePasswordSchema),
     isAuthenticated(),
     (c) => usersControllers.changePassword(c)
+);
+
+usersRouters.put(
+    "/is-public",
+    zodVaildation(UpdatePrivacySchema),
+    isAuthenticated(),
+    (c) => usersControllers.updateProfileStatus(c)
+);
+
+usersRouters.put(
+    "/is-course-visible",
+    zodVaildation(UpdatePrivacySchema),
+    isAuthenticated(),
+    (c) => usersControllers.updateCoursesVisible(c)
 );
 
 usersRouters.put(
