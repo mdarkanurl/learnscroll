@@ -3,5 +3,6 @@ export {
     users,
     refresh_tokens,
     profiles,
-    privacySettings
+    privacySettings,
+    instructors
 } from "./schema";
