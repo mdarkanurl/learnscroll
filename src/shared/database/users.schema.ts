@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { users } from "./auth.schema";
 import { uniqueIndex } from "drizzle-orm/pg-core";
 
@@ -20,6 +20,9 @@ export const profiles = pgTable('profiles', {
     tiktok: varchar('tiktok', { length: 255 }),
     x: varchar('x', { length: 255 }),
     youtube: varchar('youtube', { length: 255 }),
+
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
 }, (table) => [
     uniqueIndex('userIdIndex_profiles').on(table.userId),
 ]);
@@ -33,6 +36,9 @@ export const privacySettings = pgTable('privacy_settings', {
 
     // can other see what courses you're taking
     coursesYourTakingStatus: boolean('courses_your_taking_status').default(true).notNull(),
+
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
 }, (table) => [
     uniqueIndex('userIdIndex_privacy_settings').on(table.userId),
 ]);

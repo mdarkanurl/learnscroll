@@ -10,7 +10,7 @@ export const users = pgTable('users', {
     password: text('password').notNull(),
     mfaEnabled: boolean('mfa_enabled').default(false).notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+    updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
 }, (table) => [
     uniqueIndex('emailUniqueIndex').on(lower(table.email)),
 ]);
