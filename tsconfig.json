@@ -40,7 +40,8 @@
       "#middlewares": ["./src/shared/middlewares/index.ts"],
       "#cloudinary": ["./src/shared/cloudinary/index.ts"],
       "#users": ["./src/modules/users/index.ts"],
-      "#instructors": ["./src/modules/instructors/index.ts"]
+      "#instructors": ["./src/modules/instructors/index.ts"],
+      "#courses": ["./src/modules/courses/index.ts"]
     }
   }
 }

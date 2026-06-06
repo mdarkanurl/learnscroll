@@ -1,0 +1,34 @@
+import type { Context } from "hono";
+import type { CreateCourseSchemaDto } from "../dto/create-course.dto";
+import CustomError from "#error";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { CoursesServices } from "../services/courses.services";
+
+export class CoursesControllers {
+    private readonly coursesServices = new CoursesServices();
+
+    async createCourses(c: Context<any, any, { out: { json: CreateCourseSchemaDto } }>) {
+        try {
+            const data = c.req.valid("json");
+            const userId = c.get("jwtPayload")?.userId;
+
+            const course = await this.coursesServices.createCourses(userId, data);
+
+            return c.json({
+                success: true,
+                data: course,
+            }, 201);
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message,
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred",
+            }, 500);
+        }
+    }
+}
