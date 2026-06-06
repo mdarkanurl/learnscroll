@@ -66,6 +66,54 @@ export class UsersControllers {
         }
     }
 
+    async getProfileStatus(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+            const settings = await this.userServices
+                .getPrivacySetting(userId, "profileStatus");
+
+            return c.json({
+                success: true,
+                data: settings
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
+    async getCoursesVisible(c: Context) {
+        try {
+            const userId = c.get("jwtPayload")?.userId;
+            const settings = await this.userServices
+                .getPrivacySetting(userId, "coursesYourTakingStatus");
+
+            return c.json({
+                success: true,
+                data: settings
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred"
+            }, 500);
+        }
+    }
+
     async updateProfileStatus(c: Context<any, any, { out: { json: UpdatePrivacySchemaDto } }>) {
         try {
             const userId = c.get("jwtPayload")?.userId;

@@ -25,6 +25,18 @@ usersRouters.put(
     (c) => usersControllers.enableMfa(c)
 );
 
+usersRouters.get(
+    "/is-public",
+    isAuthenticated(),
+    (c) => usersControllers.getProfileStatus(c)
+);
+
+usersRouters.get(
+    "/is-course-visible",
+    isAuthenticated(),
+    (c) => usersControllers.getCoursesVisible(c)
+);
+
 usersRouters.put(
     "/is-public",
     zodVaildation(UpdatePrivacySchema),

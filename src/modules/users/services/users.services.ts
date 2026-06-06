@@ -51,6 +51,31 @@ export class UserServices {
         return "Multi-factor authentication enabled";
     }
 
+    async getPrivacySetting(userId: string, field: 'profileStatus' | 'coursesYourTakingStatus'):
+    Promise<{ profile_status: boolean } | { courses_visible_status: boolean }> {
+        const [setting] = await this.db
+            .select()
+            .from(privacySettings)
+            .where(eq(privacySettings.userId, userId))
+            .limit(1);
+
+        if(setting) return field === "profileStatus"?
+        { profile_status: setting.profileStatus } :
+        { courses_visible_status: setting.coursesYourTakingStatus };
+
+        const [res] =  await this.db
+            .insert(privacySettings)
+            .values({ userId })
+            .returning({
+                profile_status: privacySettings.profileStatus,
+                courses_visible_status: privacySettings.coursesYourTakingStatus
+            });
+
+        return field === "profileStatus"?
+        { profile_status: res?.profile_status! } :
+        { courses_visible_status: res?.courses_visible_status! };
+    }
+
     async updatePrivacySetting(
         userId: string,
         field: 'profileStatus' | 'coursesYourTakingStatus',
