@@ -1,4 +1,4 @@
-import { db, refresh_tokens, users, profiles, privacySettings } from "#db";
+import { db, refresh_tokens, users, profiles, privacySettings, instructors } from "#db";
 import CustomError from "#error";
 import bcrypt from "bcryptjs";
 import { sql, eq, getTableColumns } from "drizzle-orm";
@@ -226,13 +226,21 @@ export class UserServices {
             .where(sql`${users.id} = ${userIdFromReq}`)
             .limit(1);
 
-        if (profile) return { ...user, ...profile };
+        // check is this user a instructor or not
+        const [isInstructors] = await this.db
+            .select({
+                id: instructors.id
+            })
+            .from(instructors)
+            .where(eq(instructors.userId, userIdFromReq))
+
+        if (profile) return isInstructors === undefined? { ...user, ...profile } : { ...user, ...profile, isInstructors: true };
 
         const [newProfile] = await this.db
             .insert(profiles)
             .values({ userId: userIdFromReq })
             .returning();
 
-        return { ...user, ...newProfile };
+        return isInstructors === undefined? { ...user, ...newProfile } : { ...user, ...newProfile, isInstructors: true};
     }
 }
