@@ -4,5 +4,12 @@ export {
     refresh_tokens,
     profiles,
     privacySettings,
-    instructors
+    instructors,
+    courses,
+    courseCategoryEnumValue,
+    courseStatusEnumValue,
+    courseTimeCommitmentEnumValue,
+    courseCategoryEnum,
+    courseStatusEnum,
+    courseTimeCommitmentEnum
 } from "./schema";

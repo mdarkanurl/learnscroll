@@ -12,7 +12,7 @@ export const instructors = pgTable('instructors', {
 ]);
 
 // courses
-export const courseCategoryEnum = pgEnum('course_category', [
+export const courseCategoryEnumValue = [
   'development',
   'business',
   'finance_and_accounting',
@@ -26,20 +26,26 @@ export const courseCategoryEnum = pgEnum('course_category', [
   'health_and_fitness',
   'music',
   'teaching_and_academics',
-]);
+] as const;
 
-export const courseTimeCommitmentEnum = pgEnum('course_time_commitment', [
+export const courseCategoryEnum = pgEnum('course_category', courseCategoryEnumValue);
+
+export const courseTimeCommitmentEnumValue = [
   'very_busy',
   'side_project',
   'flexible',
   'undecided',
-]);
+] as const;
 
-export const courseStatusEnum = pgEnum('course_status', [
+export const courseTimeCommitmentEnum = pgEnum('course_time_commitment', courseTimeCommitmentEnumValue);
+
+export const courseStatusEnumValue = [
   'draft',
   'published',
   'archived',
-]);
+] as const;
+
+export const courseStatusEnum = pgEnum('course_status', courseStatusEnumValue);
 
 export const courses = pgTable('courses', {
     id: uuid("id").primaryKey().defaultRandom(),
