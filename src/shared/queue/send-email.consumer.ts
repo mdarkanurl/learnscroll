@@ -36,7 +36,7 @@ export const startEmailConsumer = async ( channel: amqplib.Channel ) => {
           const retries = Number(msg.properties.headers?.["x-retries"] ?? 0);
 
           const { data, error } = await resend.emails.send({
-            from: "ShobApp24 <shopapp24@drakilo.com>",
+            from: "Learn Scroll <learnscroll@drakilo.com>",
             to: [email],
             subject,
             html: body,
