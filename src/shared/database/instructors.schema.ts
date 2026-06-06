@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, uniqueIndex, uuid, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, uniqueIndex, uuid, varchar, timestamp, text } from "drizzle-orm/pg-core";
 import { users } from "./auth.schema";
 
 export const instructors = pgTable('instructors', {
@@ -56,6 +56,9 @@ export const courses = pgTable('courses', {
     category: courseCategoryEnum('category'),
     timeCommitment: courseTimeCommitmentEnum('timeCommitment'),
     status: courseStatusEnum('status').default('draft').notNull(),
+    learningObjectives: text("learning_objectives").array().notNull().default([]),
+    prerequisites: text("prerequisites").array().notNull().default([]),
+    intendedLearners: text("intended_learners").array().notNull().default([]),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
     publishedAt: timestamp('publishedAt'),
