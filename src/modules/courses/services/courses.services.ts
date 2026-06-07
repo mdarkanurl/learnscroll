@@ -1,10 +1,11 @@
 
-import { db, courses, instructors } from "#db";
+import { db, courses, instructors, sections } from "#db";
 import CustomError from "#error";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { CreateCourseSchemaDto } from "../dto/create-course.dto";
 import type { UpdateCourseSchemaDto } from "../dto/update-course.dto";
 import type { UpdateEnrollmentPrivacySchemaDto } from "../dto/update-enrollment-privacy.dto";
+import type { CreateSectionSchemaDto } from "../dto/create-section.dto";
 
 export class CoursesServices {
     private readonly db = db;
@@ -112,5 +113,46 @@ export class CoursesServices {
             .returning();
 
         return updated;
+    }
+
+    async createSection(userId: string, courseId: string, data: CreateSectionSchemaDto) {
+        const [course] = await this.db
+            .select({ id: courses.id })
+            .from(courses)
+            .where(
+                and(
+                    eq(courses.id, courseId),
+                    eq(
+                        courses.ownerId,
+                        this.db
+                            .select({ id: instructors.id })
+                            .from(instructors)
+                            .where(eq(instructors.userId, userId))
+                            .limit(1)
+                    )
+                )
+            )
+            .limit(1);
+
+        if (!course) throw new CustomError("Course not found", 404);
+
+        const [result] = await this.db
+            .select({ maxOrder: sql<number>`COALESCE(MAX(${sections.order}), -1) + 1` })
+            .from(sections)
+            .where(eq(sections.courseId, courseId));
+
+        const order = result?.maxOrder ?? 0;
+
+        const [section] = await this.db
+            .insert(sections)
+            .values({
+                courseId,
+                title: data.title,
+                order,
+                objective: data.objective,
+            })
+            .returning();
+
+        return section;
     }
 }
