@@ -11,5 +11,6 @@ export {
     courseTimeCommitmentEnumValue,
     courseCategoryEnum,
     courseStatusEnum,
-    courseTimeCommitmentEnum
+    courseTimeCommitmentEnum,
+    sections
 } from "./schema";

@@ -11,7 +11,8 @@ import {
     courseTimeCommitmentEnumValue,
     courseCategoryEnum,
     courseStatusEnum,
-    courseTimeCommitmentEnum
+    courseTimeCommitmentEnum,
+    sections
 } from "./instructors.schema";
 
 export {
@@ -26,5 +27,6 @@ export {
     courseTimeCommitmentEnumValue,
     courseCategoryEnum,
     courseStatusEnum,
-    courseTimeCommitmentEnum
+    courseTimeCommitmentEnum,
+    sections
 }

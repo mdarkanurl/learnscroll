@@ -15,6 +15,13 @@
       "when": 1780767020950,
       "tag": "0001_blushing_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780845501712,
+      "tag": "0002_marvelous_vanisher",
+      "breakpoints": true
     }
   ]
 }

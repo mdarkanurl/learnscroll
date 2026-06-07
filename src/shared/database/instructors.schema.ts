@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, uniqueIndex, uuid, varchar, timestamp, text } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, uniqueIndex, uuid, varchar, timestamp, text, integer, boolean } from "drizzle-orm/pg-core";
 import { users } from "./auth.schema";
 
 export const instructors = pgTable('instructors', {
@@ -62,5 +62,15 @@ export const courses = pgTable('courses', {
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
     publishedAt: timestamp('publishedAt'),
+});
+
+export const sections = pgTable("sections", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  courseId: uuid("courseId")
+    .references(() => courses.id, { onDelete: "cascade" })
+    .notNull(),
+  title: text("title").notNull(),
+  order: integer("order").notNull(),
+  objective: text("objective"),
 });
 
