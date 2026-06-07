@@ -20,7 +20,7 @@ export class CoursesServices {
         const [course] = await this.db
             .insert(courses)
             .values({
-                instructorId: instructor.id,
+                ownerId: instructor.id,
                 ...data,
             })
             .returning();
@@ -36,7 +36,7 @@ export class CoursesServices {
                 and(
                     eq(courses.id, courseId),
                     eq(
-                        courses.instructorId,
+                        courses.ownerId,
                         this.db
                             .select({ id: instructors.id })
                             .from(instructors)
