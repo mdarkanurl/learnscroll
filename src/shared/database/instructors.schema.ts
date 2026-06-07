@@ -42,6 +42,7 @@ export const courseTimeCommitmentEnum = pgEnum('course_time_commitment', courseT
 export const courseStatusEnumValue = [
   'draft',
   'published',
+  'under_review',
   'archived',
 ] as const;
 

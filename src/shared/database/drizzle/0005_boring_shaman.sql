@@ -1,0 +1,2 @@
+CREATE TYPE "public"."enrollment_privacy" AS ENUM('public', 'invitation_only', 'password_protected');--> statement-breakpoint
+ALTER TYPE "public"."course_status" ADD VALUE 'under_review' BEFORE 'archived';

@@ -51,4 +51,35 @@ export class CoursesServices {
 
         return updated;
     }
+
+    async archiveCourse(userId: string, courseId: string) {
+        const [course] = await this.db
+            .select({ status: courses.status })
+            .from(courses)
+            .where(
+                and(
+                    eq(courses.id, courseId),
+                    eq(
+                        courses.ownerId,
+                        this.db
+                            .select({ id: instructors.id })
+                            .from(instructors)
+                            .where(eq(instructors.userId, userId))
+                            .limit(1)
+                    )
+                )
+            )
+            .limit(1);
+
+        if (!course) throw new CustomError("Course not found or user is not authorized", 404);
+        if (course.status !== "published") throw new CustomError("Only published courses can be archived", 400);
+
+        const [archived] = await this.db
+            .update(courses)
+            .set({ status: "archived" })
+            .where(eq(courses.id, courseId))
+            .returning();
+
+        return archived;
+    }
 }

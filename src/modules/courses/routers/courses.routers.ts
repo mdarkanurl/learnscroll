@@ -22,6 +22,12 @@ coursesRouters.put(
     (c) => coursesControllers.updateCourses(c)
 );
 
+coursesRouters.put(
+    '/:id/archive',
+    isAuthenticated(),
+    (c) => coursesControllers.archiveCourse(c)
+);
+
 export {
     coursesRouters
 }

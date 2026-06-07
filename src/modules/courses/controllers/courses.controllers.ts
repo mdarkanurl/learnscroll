@@ -58,4 +58,29 @@ export class CoursesControllers {
             }, 500);
         }
     }
+
+    async archiveCourse(c: Context) {
+        try {
+            const courseId = c.req.param("id") as string;
+            const userId = c.get("jwtPayload")?.userId as string;
+
+            const course = await this.coursesServices.archiveCourse(userId, courseId);
+
+            return c.json({
+                success: true,
+                data: course,
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message,
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred",
+            }, 500);
+        }
+    }
 }
