@@ -74,3 +74,34 @@ export const sections = pgTable("sections", {
   objective: text("objective"),
 });
 
+export const lectureContentTypeEnumValue = [
+  "video",
+  "video_slide_mashup",
+  "article",
+] as const;
+
+export const lectureContentTypeEnum = pgEnum("lecture_content_type", lectureContentTypeEnumValue);
+
+export const lectures = pgTable("lectures", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sectionId: uuid("sectionId")
+    .references(() => sections.id, { onDelete: "cascade" })
+    .notNull(),
+  title: text("title").notNull(),
+  order: integer("order").notNull(),
+  isDownloadable: boolean("is_downloadable").default(true).notNull(),
+  description: text("description"),
+  resources: text("resources"),
+
+  contentType: lectureContentTypeEnum("content_type").notNull(),
+
+  // --- Video fields ---
+  videoUrl: text("video_url"),
+  duration: integer("duration"),
+
+  // --- Video & Slide Mashup fields ---
+  slideUrl: text("slide_url"),
+
+  // --- Article fields ---
+  article: text("article"),
+});

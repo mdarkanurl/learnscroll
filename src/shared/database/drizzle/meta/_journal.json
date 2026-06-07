@@ -22,6 +22,13 @@
       "when": 1780845501712,
       "tag": "0002_marvelous_vanisher",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780845917628,
+      "tag": "0003_goofy_leo",
+      "breakpoints": true
     }
   ]
 }

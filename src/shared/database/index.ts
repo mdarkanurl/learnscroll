@@ -12,5 +12,8 @@ export {
     courseCategoryEnum,
     courseStatusEnum,
     courseTimeCommitmentEnum,
-    sections
+    sections,
+    lectureContentTypeEnum,
+    lectureContentTypeEnumValue,
+    lectures
 } from "./schema";
