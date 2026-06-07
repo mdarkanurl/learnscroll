@@ -4,6 +4,7 @@ import { isAuthenticated } from "#middlewares";
 import zodVaildation from '#validation';
 import { CreateCourseSchema } from '../dto/create-course.dto';
 import { UpdateCourseSchema } from '../dto/update-course.dto';
+import { UpdateEnrollmentPrivacySchema } from '../dto/update-enrollment-privacy.dto';
 
 const coursesRouters = new Hono();
 const coursesControllers = new CoursesControllers();
@@ -23,9 +24,16 @@ coursesRouters.put(
 );
 
 coursesRouters.put(
-    '/:id/archive',
+    '/:id/unpublish',
     isAuthenticated(),
     (c) => coursesControllers.archiveCourse(c)
+);
+
+coursesRouters.put(
+    '/:id/enrollment-privacy',
+    isAuthenticated(),
+    zodVaildation(UpdateEnrollmentPrivacySchema),
+    (c) => coursesControllers.updateEnrollmentPrivacy(c)
 );
 
 export {

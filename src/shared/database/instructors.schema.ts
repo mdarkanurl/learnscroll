@@ -43,7 +43,7 @@ export const courseStatusEnumValue = [
   'draft',
   'published',
   'under_review',
-  'archived',
+  'unpublished',
 ] as const;
 
 export const courseStatusEnum = pgEnum('course_status', courseStatusEnumValue);
