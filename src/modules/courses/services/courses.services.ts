@@ -1,8 +1,9 @@
 
 import { db, courses, instructors } from "#db";
 import CustomError from "#error";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { CreateCourseSchemaDto } from "../dto/create-course.dto";
+import type { UpdateCourseSchemaDto } from "../dto/update-course.dto";
 
 export class CoursesServices {
     private readonly db = db;
@@ -25,5 +26,29 @@ export class CoursesServices {
             .returning();
 
         return course;
+    }
+
+    async updateCourses(userId: string, courseId: string, data: UpdateCourseSchemaDto) {
+        const [updated] = await this.db
+            .update(courses)
+            .set(data)
+            .where(
+                and(
+                    eq(courses.id, courseId),
+                    eq(
+                        courses.instructorId,
+                        this.db
+                            .select({ id: instructors.id })
+                            .from(instructors)
+                            .where(eq(instructors.userId, userId))
+                            .limit(1)
+                    )
+                )
+            )
+            .returning();
+
+        if (!updated) throw new CustomError("Course not found or user is not authorized", 404);
+
+        return updated;
     }
 }
