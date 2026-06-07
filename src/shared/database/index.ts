@@ -15,5 +15,7 @@ export {
     sections,
     lectureContentTypeEnum,
     lectureContentTypeEnumValue,
-    lectures
+    lectures,
+    enrollmentPrivacyEnum,
+    enrollmentPrivacyEnumValue
 } from "./schema";

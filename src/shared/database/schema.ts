@@ -15,7 +15,9 @@ import {
     sections,
     lectureContentTypeEnum,
     lectureContentTypeEnumValue,
-    lectures
+    lectures,
+    enrollmentPrivacyEnum,
+    enrollmentPrivacyEnumValue
 } from "./instructors.schema";
 
 export {
@@ -34,5 +36,7 @@ export {
     sections,
     lectureContentTypeEnum,
     lectureContentTypeEnumValue,
-    lectures
+    lectures,
+    enrollmentPrivacyEnum,
+    enrollmentPrivacyEnumValue
 }

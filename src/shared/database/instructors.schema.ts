@@ -47,11 +47,20 @@ export const courseStatusEnumValue = [
 
 export const courseStatusEnum = pgEnum('course_status', courseStatusEnumValue);
 
+export const enrollmentPrivacyEnumValue = [
+  "public",
+  "invitation_only",
+  "password_protected"
+] as const;
+
+export const enrollmentPrivacyEnum = pgEnum("enrollment_privacy", enrollmentPrivacyEnumValue);
+
 export const courses = pgTable('courses', {
     id: uuid("id").primaryKey().defaultRandom(),
-    instructorId: uuid('instructorId')
+    ownerId: uuid('ownerId')
         .references(() => instructors.id, { onDelete: 'cascade' })
         .notNull(),
+    instructors: text("instructors").array().notNull().default([]),
     title: varchar('title', { length: 256 }),
     category: courseCategoryEnum('category'),
     timeCommitment: courseTimeCommitmentEnum('timeCommitment'),
@@ -59,6 +68,8 @@ export const courses = pgTable('courses', {
     learningObjectives: text("learning_objectives").array().notNull().default([]),
     prerequisites: text("prerequisites").array().notNull().default([]),
     intendedLearners: text("intended_learners").array().notNull().default([]),
+    enrollmentPrivacy: enrollmentPrivacyEnum("enrollment_privacy").default("public").notNull(),
+    password: text("password"), // this will use when the course enrollment privacy is password_protected
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
     publishedAt: timestamp('publishedAt'),
