@@ -52,6 +52,12 @@ coursesRouters.put(
     (c) => coursesControllers.updateSection(c)
 );
 
+coursesRouters.delete(
+    '/:id/sections/:sectionId',
+    isAuthenticated(),
+    (c) => coursesControllers.deleteSection(c)
+);
+
 export {
     coursesRouters
 }

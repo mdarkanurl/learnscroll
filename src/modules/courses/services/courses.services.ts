@@ -1,7 +1,7 @@
 
 import { db, courses, instructors, sections } from "#db";
 import CustomError from "#error";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, exists, sql } from "drizzle-orm";
 import type { CreateCourseSchemaDto } from "../dto/create-course.dto";
 import type { UpdateCourseSchemaDto } from "../dto/update-course.dto";
 import type { UpdateEnrollmentPrivacySchemaDto } from "../dto/update-enrollment-privacy.dto";
@@ -192,5 +192,43 @@ export class CoursesServices {
         if (!updated) throw new CustomError("Section not found", 404);
 
         return updated;
+    }
+
+    async deleteSection(userId: string, courseId: string, sectionId: string) {
+        const [deleted] = await this.db
+            .delete(sections)
+            .where(
+                and(
+                    eq(sections.id, sectionId),
+                    eq(sections.courseId, courseId),
+                    exists(
+                        this.db
+                            .select({ id: sql`1` })
+                            .from(courses)
+                            .innerJoin(instructors, eq(courses.ownerId, instructors.id))
+                            .where(
+                                and(
+                                    eq(courses.id, courseId),
+                                    eq(instructors.userId, userId)
+                                )
+                            )
+                    )
+                )
+            )
+            .returning({ id: sections.id, order: sections.order });
+
+        if (!deleted) throw new CustomError("Section not found", 404);
+
+        await this.db
+            .update(sections)
+            .set({ order: sql`${sections.order} - 1` })
+            .where(
+                and(
+                    eq(sections.courseId, courseId),
+                    sql`${sections.order} > ${deleted.order}`
+                )
+            );
+
+        return { message: "Section deleted successfully" };
     }
 }
