@@ -6,6 +6,7 @@ import { CreateCourseSchema } from '../dto/create-course.dto';
 import { UpdateCourseSchema } from '../dto/update-course.dto';
 import { UpdateEnrollmentPrivacySchema } from '../dto/update-enrollment-privacy.dto';
 import { CreateSectionSchema } from '../dto/create-section.dto';
+import { UpdateSectionSchema } from '../dto/update-section.dto';
 
 const coursesRouters = new Hono();
 const coursesControllers = new CoursesControllers();
@@ -42,6 +43,13 @@ coursesRouters.post(
     isAuthenticated(),
     zodVaildation(CreateSectionSchema),
     (c) => coursesControllers.createSection(c)
+);
+
+coursesRouters.put(
+    '/:id/sections/:sectionId',
+    isAuthenticated(),
+    zodVaildation(UpdateSectionSchema),
+    (c) => coursesControllers.updateSection(c)
 );
 
 export {

@@ -6,6 +6,7 @@ import type { CreateCourseSchemaDto } from "../dto/create-course.dto";
 import type { UpdateCourseSchemaDto } from "../dto/update-course.dto";
 import type { UpdateEnrollmentPrivacySchemaDto } from "../dto/update-enrollment-privacy.dto";
 import type { CreateSectionSchemaDto } from "../dto/create-section.dto";
+import type { UpdateSectionSchemaDto } from "../dto/update-section.dto";
 
 export class CoursesServices {
     private readonly db = db;
@@ -154,5 +155,42 @@ export class CoursesServices {
             .returning();
 
         return section;
+    }
+
+    async updateSection(userId: string, courseId: string, sectionId: string, data: UpdateSectionSchemaDto) {
+        const [course] = await this.db
+            .select({ id: courses.id })
+            .from(courses)
+            .where(
+                and(
+                    eq(courses.id, courseId),
+                    eq(
+                        courses.ownerId,
+                        this.db
+                            .select({ id: instructors.id })
+                            .from(instructors)
+                            .where(eq(instructors.userId, userId))
+                            .limit(1)
+                    )
+                )
+            )
+            .limit(1);
+
+        if (!course) throw new CustomError("Course not found", 404);
+
+        const [updated] = await this.db
+            .update(sections)
+            .set(data)
+            .where(
+                and(
+                    eq(sections.id, sectionId),
+                    eq(sections.courseId, courseId),
+                )
+            )
+            .returning();
+
+        if (!updated) throw new CustomError("Section not found", 404);
+
+        return updated;
     }
 }
