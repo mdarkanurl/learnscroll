@@ -1,5 +1,5 @@
 import { courses, db, instructors, lectures, sections } from "#db";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, exists, sql } from "drizzle-orm";
 import type { CreateLectureSchemaDto } from "../dto/create-lecture.dto";
 import type { UpdateLectureSchemaDto } from "../dto/update-lecture.dto";
 import CustomError from "#error";
@@ -43,7 +43,14 @@ export class LecturesServices {
             .values({
                 sectionId,
                 title: data.title,
-                order
+                contentType: data.contentType,
+                order,
+                isDownloadable: data.isDownloadable,
+                description: data.description,
+                videoUrl: data.videoUrl,
+                duration: data.duration,
+                slideUrl: data.slideUrl,
+                article: data.article,
             })
             .returning();
 
@@ -82,5 +89,64 @@ export class LecturesServices {
             .returning();
 
         return updated;
+    }
+
+    async getLecture(courseId: string, sectionId: string, lectureId: string) {
+        const [lecture] = await this.db
+            .select()
+            .from(lectures)
+            .innerJoin(sections, eq(lectures.sectionId, sections.id))
+            .where(
+                and(
+                    eq(lectures.id, lectureId),
+                    eq(lectures.sectionId, sectionId),
+                    eq(sections.courseId, courseId),
+                )
+            )
+            .limit(1);
+
+        if (!lecture) throw new CustomError("Lecture not found", 404);
+
+        return lecture.lectures;
+    }
+
+    async deleteLecture(userId: string, courseId: string, sectionId: string, lectureId: string) {
+        const [deleted] = await this.db
+            .delete(lectures)
+            .where(
+                and(
+                    eq(lectures.id, lectureId),
+                    eq(lectures.sectionId, sectionId),
+                    exists(
+                        this.db
+                            .select({ id: sql`1` })
+                            .from(sections)
+                            .innerJoin(courses, eq(sections.courseId, courses.id))
+                            .innerJoin(instructors, eq(courses.ownerId, instructors.id))
+                            .where(
+                                and(
+                                    eq(sections.id, sectionId),
+                                    eq(sections.courseId, courseId),
+                                    eq(instructors.userId, userId)
+                                )
+                            )
+                    )
+                )
+            )
+            .returning({ id: lectures.id, order: lectures.order });
+
+        if (!deleted) throw new CustomError("Lecture not found", 404);
+
+        await this.db
+            .update(lectures)
+            .set({ order: sql`${lectures.order} - 1` })
+            .where(
+                and(
+                    eq(lectures.sectionId, sectionId),
+                    sql`${lectures.order} > ${deleted.order}`
+                )
+            );
+
+        return { message: "Lecture deleted successfully" };
     }
 }

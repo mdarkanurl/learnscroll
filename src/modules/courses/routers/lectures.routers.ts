@@ -15,11 +15,23 @@ lecturesRouters.post(
     (c) => lecturesControllers.createLecture(c)
 );
 
+lecturesRouters.get(
+    '/:lectureId',
+    isAuthenticated(),
+    (c) => lecturesControllers.getLecture(c)
+);
+
 lecturesRouters.put(
     '/:lectureId',
     isAuthenticated(),
     zodVaildation(UpdateLectureSchema),
     (c) => lecturesControllers.updateLecture(c)
+);
+
+lecturesRouters.delete(
+    '/:lectureId',
+    isAuthenticated(),
+    (c) => lecturesControllers.deleteLecture(c)
 );
 
 export {

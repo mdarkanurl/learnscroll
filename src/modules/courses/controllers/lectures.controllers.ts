@@ -62,4 +62,57 @@ export class LecturesControllers {
             }, 500);
         }
     }
+
+    async getLecture(c: Context) {
+        try {
+            const courseId = c.req.param("courseId") as string;
+            const sectionId = c.req.param("sectionId") as string;
+            const lectureId = c.req.param("lectureId") as string;
+
+            const lecture = await this.lecturesServices.getLecture(courseId, sectionId, lectureId);
+
+            return c.json({
+                success: true,
+                data: lecture,
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message,
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred",
+            }, 500);
+        }
+    }
+
+    async deleteLecture(c: Context) {
+        try {
+            const courseId = c.req.param("courseId") as string;
+            const sectionId = c.req.param("sectionId") as string;
+            const lectureId = c.req.param("lectureId") as string;
+            const userId = c.get("jwtPayload")?.userId as string;
+
+            const result = await this.lecturesServices.deleteLecture(userId, courseId, sectionId, lectureId);
+
+            return c.json({
+                success: true,
+                message: result.message,
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message,
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred",
+            }, 500);
+        }
+    }
 }
