@@ -99,7 +99,7 @@ export const lectures = pgTable("lectures", {
   sectionId: uuid("sectionId")
     .references(() => sections.id, { onDelete: "cascade" })
     .notNull(),
-  title: text("title").notNull(),
+  title: varchar("title", { length: 80 }).notNull(),
   order: integer("order").notNull(),
   isDownloadable: boolean("is_downloadable").default(true).notNull(),
   description: text("description"),

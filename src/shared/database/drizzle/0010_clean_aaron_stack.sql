@@ -1,0 +1,1 @@
+ALTER TABLE "lectures" ALTER COLUMN "title" SET DATA TYPE varchar(80);
