@@ -37,7 +37,7 @@ coursesRouters.put(
     (c) => coursesControllers.updateEnrollmentPrivacy(c)
 );
 
-coursesRouters.route("/sections", sectionsRouters);
+coursesRouters.route("/sections/:courseId", sectionsRouters);
 
 export {
     coursesRouters
