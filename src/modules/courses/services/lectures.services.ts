@@ -43,14 +43,7 @@ export class LecturesServices {
             .values({
                 sectionId,
                 title: data.title,
-                contentType: data.contentType,
                 order,
-                isDownloadable: data.isDownloadable,
-                description: data.description,
-                videoUrl: data.videoUrl,
-                duration: data.duration,
-                slideUrl: data.slideUrl,
-                article: data.article,
             })
             .returning();
 
