@@ -50,6 +50,20 @@
       "when": 1780850553928,
       "tag": "0006_sticky_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1780994390180,
+      "tag": "0007_tan_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780994540761,
+      "tag": "0008_rainy_pestilence",
+      "breakpoints": true
     }
   ]
 }

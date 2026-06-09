@@ -105,7 +105,7 @@ export const lectures = pgTable("lectures", {
   description: text("description"),
   resources: text("resources"),
 
-  contentType: lectureContentTypeEnum("content_type").notNull(),
+  contentType: lectureContentTypeEnum("content_type"),
 
   // --- Video fields ---
   videoUrl: text("video_url"),

@@ -1,0 +1,1 @@
+ALTER TABLE "lectures" ALTER COLUMN "order" SET NOT NULL;
