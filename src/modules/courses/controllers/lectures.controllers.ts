@@ -63,6 +63,42 @@ export class LecturesControllers {
         }
     }
 
+    async getLectures(c: Context) {
+        try {
+            const courseId = c.req.param("courseId") as string;
+            const sectionId = c.req.param("sectionId") as string;
+            const page = Math.max(Number(c.req.query("page")) || 1, 1);
+            const limit = Math.min(
+                Math.max(Number(c.req.query("limit")) || 100, 1),
+                100
+            );
+
+            const result = await this.lecturesServices.getLectures(courseId, sectionId, page, limit);
+
+            return c.json({
+                success: true,
+                data: result.lectures,
+                pagination: {
+                    page: result.page,
+                    limit: result.limit,
+                    totalItem: result.totalItems,
+                    totalPages: result.totalPages
+                },
+            });
+        } catch (error) {
+            if (error instanceof CustomError) {
+                return c.json({
+                    success: false,
+                    message: error.message,
+                }, error.statusCode as ContentfulStatusCode);
+            }
+            return c.json({
+                success: false,
+                message: "An unexpected error occurred",
+            }, 500);
+        }
+    }
+
     async getLecture(c: Context) {
         try {
             const courseId = c.req.param("courseId") as string;

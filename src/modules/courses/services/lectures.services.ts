@@ -84,6 +84,46 @@ export class LecturesServices {
         return updated;
     }
 
+    async getLectures(courseId: string, sectionId: string, page: number, limit: number) {
+        const [section] = await this.db
+            .select({ id: sections.id })
+            .from(sections)
+            .where(
+                and(
+                    eq(sections.id, sectionId),
+                    eq(sections.courseId, courseId),
+                )
+            )
+            .limit(1);
+
+        if (!section) throw new CustomError("Section not found", 404);
+
+        const offset = (page - 1) * limit;
+
+        const [countResult] = await this.db
+            .select({ total: sql<number>`COUNT(*)` })
+            .from(lectures)
+            .where(eq(lectures.sectionId, sectionId));
+
+        const total = Number(countResult?.total ?? 0);
+
+        const result = await this.db
+            .select()
+            .from(lectures)
+            .where(eq(lectures.sectionId, sectionId))
+            .orderBy(lectures.order)
+            .limit(limit)
+            .offset(offset);
+
+        return {
+            lectures: result,
+            page,
+            limit,
+            totalItems: total,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
+
     async getLecture(courseId: string, sectionId: string, lectureId: string) {
         const [lecture] = await this.db
             .select()

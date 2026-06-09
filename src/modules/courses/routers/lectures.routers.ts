@@ -16,6 +16,12 @@ lecturesRouters.post(
 );
 
 lecturesRouters.get(
+    '/',
+    isAuthenticated(),
+    (c) => lecturesControllers.getLectures(c)
+);
+
+lecturesRouters.get(
     '/:lectureId',
     isAuthenticated(),
     (c) => lecturesControllers.getLecture(c)
