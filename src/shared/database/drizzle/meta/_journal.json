@@ -64,6 +64,13 @@
       "when": 1780994540761,
       "tag": "0008_rainy_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1780996955805,
+      "tag": "0009_keen_hiroim",
+      "breakpoints": true
     }
   ]
 }

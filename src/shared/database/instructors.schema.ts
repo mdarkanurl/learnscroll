@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, uniqueIndex, uuid, varchar, timestamp, text, integer, boolean } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, uniqueIndex, uuid, varchar, timestamp, text, integer, boolean, json } from "drizzle-orm/pg-core";
 import { users } from "./auth.schema";
 
 export const instructors = pgTable('instructors', {
@@ -103,7 +103,6 @@ export const lectures = pgTable("lectures", {
   order: integer("order").notNull(),
   isDownloadable: boolean("is_downloadable").default(true).notNull(),
   description: text("description"),
-  resources: text("resources"),
 
   contentType: lectureContentTypeEnum("content_type"),
 
@@ -116,4 +115,24 @@ export const lectures = pgTable("lectures", {
 
   // --- Article fields ---
   article: text("article"),
+});
+
+export const lecturesResourcesTypeValue = [
+  "Downloadable_file",
+  "external_resource",
+  "sourec_code"
+] as const;
+
+export const lecturesResourcesTypeEnum = pgEnum("lectures_resources_type", lectureContentTypeEnumValue);
+
+export const lecturesResources = pgTable("lectures_resources", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  lectureId: uuid("lectureId")
+    .references(() => lectures.id, { onDelete: "cascade" })
+    .notNull(),
+
+  types: lectureContentTypeEnum("types"),
+  downloadableFilePath: text("downloadable_file_path"),
+  externalResource: json().$type<{ Title: string, Url: string }>().array().notNull().default([]),
+  sourecCodeFilePath: text("sourec_code_file_path"),
 });
