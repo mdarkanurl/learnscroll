@@ -2,11 +2,11 @@
 import { db, courses, instructors } from "#db";
 import CustomError from "#error";
 import { and, eq } from "drizzle-orm";
-import type { CreateCourseSchemaDto } from "../dto/create-course.dto";
-import type { UpdateCourseSchemaDto } from "../dto/update-course.dto";
-import type { UpdateEnrollmentPrivacySchemaDto } from "../dto/update-enrollment-privacy.dto";
+import type { CreateCourseSchemaDto } from "../../dto/create-course.dto";
+import type { UpdateCourseSchemaDto } from "../../dto/update-course.dto";
+import type { UpdateEnrollmentPrivacySchemaDto } from "../../dto/update-enrollment-privacy.dto";
 
-export class CoursesServices {
+export class AdminCoursesServices {
     private readonly db = db;
 
     async createCourses(userId: string, data: CreateCourseSchemaDto) {

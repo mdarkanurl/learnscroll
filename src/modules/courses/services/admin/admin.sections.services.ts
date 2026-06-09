@@ -1,11 +1,11 @@
 import { courses, db, instructors, sections } from "#db";
 import { and, eq, exists, sql } from "drizzle-orm";
-import type { CreateSectionSchemaDto } from "../dto/create-section.dto";
+import type { CreateSectionSchemaDto } from "../../dto/create-section.dto";
 import CustomError from "#error";
-import type { UpdateSectionSchemaDto } from "../dto/update-section.dto";
+import type { UpdateSectionSchemaDto } from "../../dto/update-section.dto";
 
 
-export class SectionsServices {
+export class AdminSectionsServices {
     private readonly db = db;
 
     async createSection(userId: string, courseId: string, data: CreateSectionSchemaDto) {

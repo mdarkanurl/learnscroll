@@ -1,22 +1,20 @@
 import type { Context } from "hono";
-import type { CreateCourseSchemaDto } from "../dto/create-course.dto";
-import type { UpdateCourseSchemaDto } from "../dto/update-course.dto";
-import type { UpdateEnrollmentPrivacySchemaDto } from "../dto/update-enrollment-privacy.dto";
-import type { CreateSectionSchemaDto } from "../dto/create-section.dto";
-import type { UpdateSectionSchemaDto } from "../dto/update-section.dto";
 import CustomError from "#error";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
-import { CoursesServices } from "../services/courses.services";
+import { AdminCoursesServices } from "../../services";
+import type { CreateCourseSchemaDto } from "../../dto/create-course.dto";
+import type { UpdateCourseSchemaDto } from "../../dto/update-course.dto";
+import type { UpdateEnrollmentPrivacySchemaDto } from "../../dto/update-enrollment-privacy.dto";
 
-export class CoursesControllers {
-    private readonly coursesServices = new CoursesServices();
+export class AdminCoursesControllers {
+    private readonly adminCoursesServices = new AdminCoursesServices();
 
     async createCourses(c: Context<any, any, { out: { json: CreateCourseSchemaDto } }>) {
         try {
             const data = c.req.valid("json");
             const userId = c.get("jwtPayload")?.userId as string;
 
-            const course = await this.coursesServices.createCourses(userId, data);
+            const course = await this.adminCoursesServices.createCourses(userId, data);
 
             return c.json({
                 success: true,
@@ -42,7 +40,7 @@ export class CoursesControllers {
             const data = c.req.valid("json");
             const userId = c.get("jwtPayload")?.userId as string;
 
-            const course = await this.coursesServices.updateCourses(userId, courseId, data);
+            const course = await this.adminCoursesServices.updateCourses(userId, courseId, data);
 
             return c.json({
                 success: true,
@@ -67,7 +65,7 @@ export class CoursesControllers {
             const courseId = c.req.param("id") as string;
             const userId = c.get("jwtPayload")?.userId as string;
 
-            const course = await this.coursesServices.archiveCourse(userId, courseId);
+            const course = await this.adminCoursesServices.archiveCourse(userId, courseId);
 
             return c.json({
                 success: true,
@@ -93,7 +91,7 @@ export class CoursesControllers {
             const data = c.req.valid("json");
             const userId = c.get("jwtPayload")?.userId as string;
 
-            const course = await this.coursesServices.updateEnrollmentPrivacy(userId, courseId, data);
+            const course = await this.adminCoursesServices.updateEnrollmentPrivacy(userId, courseId, data);
 
             return c.json({
                 success: true,

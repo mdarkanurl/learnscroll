@@ -1,11 +1,11 @@
 import { courses, db, instructors, lectures, sections } from "#db";
 import { and, eq, exists, sql } from "drizzle-orm";
-import type { CreateLectureSchemaDto } from "../dto/create-lecture.dto";
-import type { UpdateLectureSchemaDto } from "../dto/update-lecture.dto";
+import type { CreateLectureSchemaDto } from "../../dto/create-lecture.dto";
+import type { UpdateLectureSchemaDto } from "../../dto/update-lecture.dto";
 import CustomError from "#error";
 
 
-export class LecturesServices {
+export class AdminLecturesServices {
     private readonly db = db;
 
     async createLecture(userId: string, courseId: string, sectionId: string, data: CreateLectureSchemaDto) {
@@ -82,65 +82,6 @@ export class LecturesServices {
             .returning();
 
         return updated;
-    }
-
-    async getLectures(courseId: string, sectionId: string, page: number, limit: number) {
-        const [section] = await this.db
-            .select({ id: sections.id })
-            .from(sections)
-            .where(
-                and(
-                    eq(sections.id, sectionId),
-                    eq(sections.courseId, courseId),
-                )
-            )
-            .limit(1);
-
-        if (!section) throw new CustomError("Section not found", 404);
-
-        const offset = (page - 1) * limit;
-
-        const [countResult] = await this.db
-            .select({ total: sql<number>`COUNT(*)` })
-            .from(lectures)
-            .where(eq(lectures.sectionId, sectionId));
-
-        const total = Number(countResult?.total ?? 0);
-
-        const result = await this.db
-            .select()
-            .from(lectures)
-            .where(eq(lectures.sectionId, sectionId))
-            .orderBy(lectures.order)
-            .limit(limit)
-            .offset(offset);
-
-        return {
-            lectures: result,
-            page,
-            limit,
-            totalItems: total,
-            totalPages: Math.ceil(total / limit),
-        };
-    }
-
-    async getLecture(courseId: string, sectionId: string, lectureId: string) {
-        const [lecture] = await this.db
-            .select()
-            .from(lectures)
-            .innerJoin(sections, eq(lectures.sectionId, sections.id))
-            .where(
-                and(
-                    eq(lectures.id, lectureId),
-                    eq(lectures.sectionId, sectionId),
-                    eq(sections.courseId, courseId),
-                )
-            )
-            .limit(1);
-
-        if (!lecture) throw new CustomError("Lecture not found", 404);
-
-        return lecture.lectures;
     }
 
     async deleteLecture(userId: string, courseId: string, sectionId: string, lectureId: string) {
