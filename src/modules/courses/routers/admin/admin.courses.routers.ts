@@ -10,6 +10,12 @@ import adminSectionsRouters from './admin.sections.routers';
 const adminCoursesRouters = new Hono();
 const adminCoursesControllers = new AdminCoursesControllers();
 
+adminCoursesRouters.get(
+    '/',
+    isAuthenticated(),
+    (c) => adminCoursesControllers.getAllCourses(c)
+);
+
 adminCoursesRouters.post(
     '/',
     isAuthenticated(),
