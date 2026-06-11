@@ -43,7 +43,8 @@
     "#middlewares": "./src/shared/middlewares/index.ts",
     "#users": "./src/modules/users/index.ts",
     "#instructors": "./src/modules/instructors/index.ts",
-    "#courses": "./src/modules/courses/index.ts"
+    "#courses": "./src/modules/courses/index.ts",
+    "#video": "./src/modules/video/index.ts"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.8",

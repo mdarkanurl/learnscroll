@@ -41,7 +41,8 @@
       "#cloudinary": ["./src/shared/cloudinary/index.ts"],
       "#users": ["./src/modules/users/index.ts"],
       "#instructors": ["./src/modules/instructors/index.ts"],
-      "#courses": ["./src/modules/courses/index.ts"]
+      "#courses": ["./src/modules/courses/index.ts"],
+      "#video": ["./src/modules/video/index.ts"]
     }
   }
 }

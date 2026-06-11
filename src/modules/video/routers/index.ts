@@ -1,0 +1,1 @@
+export { adminVideoRouters } from "./admin/admin.video.routers"
