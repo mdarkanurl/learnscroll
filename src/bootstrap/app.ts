@@ -5,11 +5,13 @@ import usersRouters from '#users';
 import instructorsRoutes from '#instructors';
 import coursesRoutes from '#courses';
 import videoRouters from '#video';
+import { cors } from "hono/cors";
 
 const app = new Hono()
 
 // middlewares
 app.use('*', logger())
+app.use('*', cors())
 
 // router
 app.route("/api/auth", authRoutes)
