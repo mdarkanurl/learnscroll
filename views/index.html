@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Upload</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f11;
+      --surface: #1a1a1f;
+      --border: #2a2a32;
+      --border-active: #5b5bd6;
+      --accent: #5b5bd6;
+      --accent-hover: #6e6ee0;
+      --text-primary: #ededef;
+      --text-secondary: #8b8b99;
+      --success: #30a46c;
+      --error: #e5484d;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .card-header {
+      margin-bottom: 28px;
+    }
+
+    .card-header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .card-header p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 1.5px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--border-active);
+      background: rgba(91, 91, 214, 0.05);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-zone-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(91, 91, 214, 0.12);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 14px;
+    }
+
+    .drop-zone-icon svg {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+    }
+
+    .drop-zone-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .drop-zone-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* File selected state */
+    .file-selected {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: rgba(91, 91, 214, 0.08);
+      border: 1px solid rgba(91, 91, 214, 0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .file-selected.visible { display: flex; }
+
+    .file-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(91, 91, 214, 0.15);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .file-icon svg { width: 18px; height: 18px; color: var(--accent); }
+
+    .file-info { flex: 1; min-width: 0; }
+    .file-name {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-size { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+    .file-remove {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .file-remove:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+    .file-remove svg { width: 16px; height: 16px; }
+
+    /* Progress bar */
+    .progress-wrap {
+      display: none;
+      margin-bottom: 20px;
+    }
+    .progress-wrap.visible { display: block; }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+
+    /* Status message */
+    .status {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .status.visible { display: flex; }
+    .status.success { background: rgba(48, 164, 108, 0.12); color: var(--success); }
+    .status.error { background: rgba(229, 72, 77, 0.12); color: var(--error); }
+    .status svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* Upload button */
+    .upload-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .upload-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .upload-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .uploading .spinner { display: block; }
+    .uploading .btn-text::before { content: "Uploading…"; }
+    .btn-text::before { content: "Upload video"; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h1>Upload video</h1>
+    <p>Supported formats: MP4, MOV, AVI, WebM</p>
+  </div>
+
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="video" accept="video/*" />
+    <div class="drop-zone-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="drop-zone-label">Drop your video here</div>
+    <div class="drop-zone-sub">or click to browse files</div>
+  </div>
+
+  <div class="file-selected" id="fileSelected">
+    <div class="file-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="23 7 16 12 23 17 23 7"/>
+        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+      </svg>
+    </div>
+    <div class="file-info">
+      <div class="file-name" id="fileName">—</div>
+      <div class="file-size" id="fileSize">—</div>
+    </div>
+    <button class="file-remove" id="removeFile" title="Remove">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-header">
+      <span id="progressLabel">Uploading…</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="status" id="status">
+    <svg id="statusIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    <span id="statusText"></span>
+  </div>
+
+  <button class="upload-btn" id="uploadBtn" disabled>
+    <div class="spinner"></div>
+    <span class="btn-text"></span>
+  </button>
+</div>
+
+<script>
+  const videoInput   = document.getElementById("video");
+  const dropZone     = document.getElementById("dropZone");
+  const fileSelected = document.getElementById("fileSelected");
+  const fileName     = document.getElementById("fileName");
+  const fileSize     = document.getElementById("fileSize");
+  const removeFile   = document.getElementById("removeFile");
+  const uploadBtn    = document.getElementById("uploadBtn");
+  const progressWrap = document.getElementById("progressWrap");
+  const progressFill = document.getElementById("progressFill");
+  const progressPct  = document.getElementById("progressPct");
+  const progressLabel= document.getElementById("progressLabel");
+  const statusEl     = document.getElementById("status");
+  const statusIcon   = document.getElementById("statusIcon");
+  const statusText   = document.getElementById("statusText");
+
+  function formatBytes(bytes) {
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
+  function showFile(file) {
+    fileName.textContent = file.name;
+    fileSize.textContent = formatBytes(file.size);
+    dropZone.style.display = "none";
+    fileSelected.classList.add("visible");
+    uploadBtn.disabled = false;
+    clearStatus();
+  }
+
+  function clearFile() {
+    videoInput.value = "";
+    dropZone.style.display = "";
+    fileSelected.classList.remove("visible");
+    uploadBtn.disabled = true;
+    clearStatus();
+    setProgress(false);
+  }
+
+  function clearStatus() {
+    statusEl.className = "status";
+    statusEl.style.display = "none";
+  }
+
+  function showStatus(type, message) {
+    const checkIcon = `<polyline points="20 6 9 17 4 12"/>`;
+    const errorIcon = `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>`;
+    statusIcon.innerHTML = type === "success" ? checkIcon : errorIcon;
+    statusText.textContent = message;
+    statusEl.className = `status ${type} visible`;
+  }
+
+  function setProgress(visible, pct = 0, label = "Uploading…") {
+    if (!visible) { progressWrap.classList.remove("visible"); return; }
+    progressWrap.classList.add("visible");
+    progressFill.style.width = pct + "%";
+    progressPct.textContent = pct + "%";
+    progressLabel.textContent = label;
+  }
+
+  function setUploading(on) {
+    uploadBtn.disabled = on;
+    uploadBtn.classList.toggle("uploading", on);
+  }
+
+  videoInput.addEventListener("change", () => {
+    if (videoInput.files[0]) showFile(videoInput.files[0]);
+  });
+
+  removeFile.addEventListener("click", clearFile);
+
+  dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("dragover"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("video/")) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      videoInput.files = dt.files;
+      showFile(file);
+    }
+  });
+
+  uploadBtn.addEventListener("click", async () => {
+    const file = videoInput.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setProgress(true, 0, "Getting upload credentials…");
+    clearStatus();
+
+    try {
+      const signatureResponse = await fetch("http://localhost:3000/api/video/admin/signature");
+      const json = await signatureResponse.json();
+      const { signature, timestamp, folder, context, public_id, apiKey, cloudName } = json.data;
+
+      setProgress(true, 10, "Uploading to Cloudinary…");
+
+      const formData = new FormData();
+      formData.append("timestamp", timestamp);
+      formData.append("folder", folder);
+      formData.append("context", context);
+      formData.append("public_id", public_id);
+      formData.append("api_key", apiKey);
+      formData.append("signature", signature);
+      formData.append("file", file);
+
+      // Use XHR for real upload progress
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`);
+        xhr.upload.addEventListener("progress", e => {
+          if (e.lengthComputable) {
+            const pct = Math.round(10 + (e.loaded / e.total) * 85);
+            setProgress(true, pct, "Uploading…");
+          }
+        });
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const result = JSON.parse(xhr.responseText);
+            console.log("Upload result:", result);
+            console.log("Video URL:", result.secure_url);
+            resolve(result);
+          } else {
+            reject(new Error(xhr.responseText));
+          }
+        });
+        xhr.addEventListener("error", () => reject(new Error("Network error")));
+        xhr.send(formData);
+      });
+
+      setProgress(true, 100, "Done!");
+      setTimeout(() => setProgress(false), 800);
+      showStatus("success", "Video uploaded successfully.");
+      clearFile();
+
+    } catch (err) {
+      console.error(err);
+      setProgress(false);
+      showStatus("error", "Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  });
+</script>
+
+</body>
+</html>
