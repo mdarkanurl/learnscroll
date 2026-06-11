@@ -6,22 +6,30 @@ export class AdminVideoServices {
     async generateSignature(userEmail: string) {
         try {
             const timestamp = Math.round(Date.now() / 1000);
+            const publicId = crypto.randomUUID();
+            const folder = `courses/${userEmail}`;
+            const context = `userEmail=${userEmail}`;
 
+            // Only include fields that Cloudinary actually signs
             const paramsToSign = {
                 timestamp: timestamp.toString(),
-                folder: `courses/${userEmail}`,
-                context: `userEmail=${userEmail}`,
-                publicId: crypto.randomUUID()
+                folder,
+                context,
+                public_id: publicId,
             };
 
             const signature = await generateApiSignRequest(paramsToSign);
 
+            // Return apiKey and cloudName separately — NOT part of the signed params
             return {
                 ...paramsToSign,
-                signature
-            }
+                publicId,
+                signature,
+                apiKey: env.cloudinaryApiKey,
+                cloudName: env.cloudinaryCloudName,
+            };
         } catch (error) {
             throw error;
         }
-    }   
+    }  
 }
