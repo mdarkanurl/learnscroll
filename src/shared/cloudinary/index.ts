@@ -27,3 +27,10 @@ export async function generateApiSignRequest(payload: Record<string, string>): P
   );
 }
 
+export function verifyNotificationSignature(rawBody: string, timestamp: number, signature: string): boolean {
+  return Cloudinary.utils.verifyNotificationSignature(
+    rawBody,
+    timestamp,
+    signature
+  )
+}
