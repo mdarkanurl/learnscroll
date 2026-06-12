@@ -1,17 +1,7 @@
 import { pgEnum, pgTable, uniqueIndex, uuid, varchar, timestamp, text, integer, boolean, json } from "drizzle-orm/pg-core";
 import { users } from "./auth.schema";
 
-export const instructors = pgTable('instructors', {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("userId").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-
-    createdAt: timestamp('createdAt').notNull().defaultNow(),
-    updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
-}, (table) => [
-    uniqueIndex('userIdIndex_instructors').on(table.userId),
-]);
-
-// courses
+// arrays and pg enum
 export const courseCategoryEnumValue = [
   'development',
   'business',
@@ -56,6 +46,40 @@ export const enrollmentPrivacyEnumValue = [
 
 export const enrollmentPrivacyEnum = pgEnum("enrollment_privacy", enrollmentPrivacyEnumValue);
 
+export const lectureContentTypeEnumValue = [
+  "video",
+  "video_slide_mashup",
+  "article",
+] as const;
+
+export const lectureContentTypeEnum = pgEnum("lecture_content_type", lectureContentTypeEnumValue);
+
+export const lecturesResourcesTypeValue = [
+  "Downloadable_file",
+  "external_resource",
+  "sourec_code"
+] as const;
+
+export const lecturesResourcesTypeEnum = pgEnum("lectures_resources_type", lectureContentTypeEnumValue);
+
+export const lectureContentStatus = [
+  "uploading",
+  "processing",
+  "completed"
+] as const;
+
+export const lectureContentStatusEnum = pgEnum("lecture_content_status_enum", lectureContentStatus);
+
+export const instructors = pgTable('instructors', {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("userId").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt").$onUpdate(() => new Date()),
+}, (table) => [
+    uniqueIndex('userIdIndex_instructors').on(table.userId),
+]);
+
 export const courses = pgTable('courses', {
     id: uuid("id").primaryKey().defaultRandom(),
     ownerId: uuid('ownerId')
@@ -86,14 +110,6 @@ export const sections = pgTable("sections", {
   objective: text("objective"),
 });
 
-export const lectureContentTypeEnumValue = [
-  "video",
-  "video_slide_mashup",
-  "article",
-] as const;
-
-export const lectureContentTypeEnum = pgEnum("lecture_content_type", lectureContentTypeEnumValue);
-
 export const lectures = pgTable("lectures", {
   id: uuid("id").primaryKey().defaultRandom(),
   sectionId: uuid("sectionId")
@@ -112,19 +128,12 @@ export const lectureContent = pgTable("lecture_content", {
   
   contentType: lectureContentTypeEnum("content_type").notNull(),
   isDownloadable: boolean("is_downloadable").default(false).notNull(),
+  status: lectureContentStatusEnum("status").notNull(),
   videoUrl: text("video_url"),
   duration: integer("duration"),
   slideUrl: text("slide_url"),
   article: text("article"),
 });
-
-export const lecturesResourcesTypeValue = [
-  "Downloadable_file",
-  "external_resource",
-  "sourec_code"
-] as const;
-
-export const lecturesResourcesTypeEnum = pgEnum("lectures_resources_type", lectureContentTypeEnumValue);
 
 export const lecturesResources = pgTable("lectures_resources", {
   id: uuid("id").primaryKey().defaultRandom(),
