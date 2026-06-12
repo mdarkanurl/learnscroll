@@ -101,19 +101,20 @@ export const lectures = pgTable("lectures", {
     .notNull(),
   title: varchar("title", { length: 80 }).notNull(),
   order: integer("order").notNull(),
-  isDownloadable: boolean("is_downloadable").default(true).notNull(),
   description: text("description"),
+});
 
-  contentType: lectureContentTypeEnum("content_type"),
-
-  // --- Video fields ---
+export const lectureContent = pgTable("lecture_content", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  lectureId: uuid("lectureId")
+    .references(() => sections.id, { onDelete: "cascade" })
+    .notNull(),
+  
+  contentType: lectureContentTypeEnum("content_type").notNull(),
+  isDownloadable: boolean("is_downloadable").default(false).notNull(),
   videoUrl: text("video_url"),
   duration: integer("duration"),
-
-  // --- Video & Slide Mashup fields ---
   slideUrl: text("slide_url"),
-
-  // --- Article fields ---
   article: text("article"),
 });
 
