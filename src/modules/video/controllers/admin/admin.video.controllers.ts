@@ -2,16 +2,18 @@ import type { Context } from "hono";
 import { AdminVideoServices } from "../../services";
 import CustomError from "#error";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import type { GenerateSignatureDto } from "../../dto/admin/admin.generate-signature.dto";
 
 export class AdminVideoControllers {
     private readonly adminVideoServices = new AdminVideoServices();
 
-    async generateSignature(c: Context) {
+    async generateSignature(c: Context<any, any, { out: { json: GenerateSignatureDto } }>) {
         try {
-            const userEmail = c.get("jwtPayload")?.email as string;
+            const userId = c.get("jwtPayload")?.userId as string;
+            const data = c.req.valid("json");
 
             const res = await this.adminVideoServices
-                .generateSignature(userEmail);
+                .generateSignature(userId, data);
 
             return c.json({
                 success: true,

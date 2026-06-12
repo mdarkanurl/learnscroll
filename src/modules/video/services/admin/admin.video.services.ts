@@ -1,26 +1,28 @@
 import { generateApiSignRequest } from "#cloudinary";
 import { env } from "#configs";
+import type { GenerateSignatureDto } from "../../dto/admin/admin.generate-signature.dto";
 
 export class AdminVideoServices {
     
-    async generateSignature(userEmail: string) {
+    async generateSignature(userId: string, data: GenerateSignatureDto) {
         try {
             const timestamp = Math.round(Date.now() / 1000);
             const publicId = crypto.randomUUID();
-            const folder = `courses/${userEmail}`;
-            const context = `userEmail=${userEmail}`;
+            const folder = `courses/${userId}`;
+            const context = {
+                userId,
+                data: data.contentType,
+            };
 
-            // Only include fields that Cloudinary actually signs
             const paramsToSign = {
                 timestamp: timestamp.toString(),
                 folder,
-                context,
+                context: JSON.stringify(context),
                 public_id: publicId,
             };
 
             const signature = await generateApiSignRequest(paramsToSign);
 
-            // Return apiKey and cloudName separately — NOT part of the signed params
             return {
                 ...paramsToSign,
                 publicId,
