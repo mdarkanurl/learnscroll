@@ -25,7 +25,6 @@ export class AdminVideoServices {
 
             return {
                 ...paramsToSign,
-                publicId,
                 signature,
                 apiKey: env.cloudinaryApiKey,
                 cloudName: env.cloudinaryCloudName,
@@ -33,5 +32,13 @@ export class AdminVideoServices {
         } catch (error) {
             throw error;
         }
-    }  
+    }
+    
+    async webhook(data: any) {
+        try {
+            // send the data to queue
+        } catch (error) {
+            throw error;
+        }
+    }
 }

@@ -14,6 +14,11 @@ adminVideoRouters.get(
     (c) => adminVideoControllers.generateSignature(c)
 );
 
+adminVideoRouters.post(
+    "/webhook",
+    (c) => adminVideoControllers.webhook(c)
+);
+
 export {
     adminVideoRouters
 };
