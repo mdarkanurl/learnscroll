@@ -31,6 +31,7 @@ export function verifyNotificationSignature(rawBody: string, timestamp: number, 
   return Cloudinary.utils.verifyNotificationSignature(
     rawBody,
     timestamp,
-    signature
+    signature,
+    3600
   )
 }
