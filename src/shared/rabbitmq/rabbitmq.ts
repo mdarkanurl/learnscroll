@@ -14,7 +14,7 @@ export let consumerChannel: amqplib.Channel;
 
 export let rabbitMqConnectedAt: Date | null = null;
 
-export const rabbitmq = async () => {
+export const rabbitmq: any = async () => {
   try {
     const rabbitMqUrl = new URL(env.rabbitmqUrl);
 
@@ -94,7 +94,7 @@ export const rabbitmq = async () => {
     await startEmailConsumer(consumerChannel);
   } catch (err) {
     console.error("RabbitMQ startup failed:", err);
-    setTimeout(rabbitmq, 5000);
+    return rabbitmq();
   }
 };
 
