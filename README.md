@@ -59,22 +59,6 @@ Infrastructure:
 - `shared/middlewares` - JWT-based auth middleware reading tokens from httpOnly cookies.
 - `shared/errors` - Custom error class with HTTP status codes.
 
-```
-Client Request
-     |
-     v
-  Hono Router  -->  Auth Middleware (JWT cookie check)
-     |
-     v
-  Module Controller  -->  Module Service  -->  Drizzle ORM  -->  PostgreSQL
-                                    |
-                                    v
-                              RabbitMQ Queue (email)
-                                    |
-                                    v
-                              Resend API (email delivery)
-```
-
 ## Setup Instructions
 
 ### Prerequisites
