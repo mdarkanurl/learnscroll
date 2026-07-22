@@ -67,7 +67,7 @@ export const startEmailConsumer = async ( channel: amqplib.Channel ) => {
           console.log("Email sent", {
             email,
             id: data?.id,
-          } );
+          });
           channel.ack(msg);
         } catch (err) {
           console.error("Worker error:", err);

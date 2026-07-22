@@ -8,17 +8,12 @@ const adminVideoRouters = new Hono();
 const adminVideoControllers = new AdminVideoControllers();
 
 adminVideoRouters.get(
-    "/signature",
-    zodVaildation(generateSignature),
-    isAuthenticated(),
-    (c) => adminVideoControllers.generateSignature(c)
+  "/signature",
+  zodVaildation(generateSignature),
+  isAuthenticated(),
+  (c) => adminVideoControllers.generateSignature(c),
 );
 
-adminVideoRouters.post(
-    "/webhook",
-    (c) => adminVideoControllers.webhook(c)
-);
+adminVideoRouters.post("/webhook", (c) => adminVideoControllers.webhook(c));
 
-export {
-    adminVideoRouters
-};
+export { adminVideoRouters };
